@@ -425,7 +425,7 @@ if (hamburger && nav) {
         }
 
         el.classList.add('reveal-ready');
-        el.style.setProperty('--reveal-delay', `${index * 55}ms`);
+        el.style.setProperty('--reveal-delay', `${index * 25}ms`);
         observer.observe(el);
       });
     }
