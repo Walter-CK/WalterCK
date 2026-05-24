@@ -1538,9 +1538,8 @@ body:has(.site-nav) .profile-pfp {
   opacity: 1;
 }
 
-.card:not(.card--locked):hover,
-.fp-feat:hover {
-  transform: translateY(-7px);
+.card:hover, .fp-feat:hover { 
+  transform: translateY(-7px); 
 }
 
 .contact-section p {
