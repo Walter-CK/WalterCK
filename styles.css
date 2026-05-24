@@ -231,14 +231,6 @@ a.card-link { display: block; text-decoration: none; color: inherit; }
 
 .card--locked {
   cursor: not-allowed;
-  opacity: 0.5;
-  user-select: none;
-}
-.card--locked:hover {
-  transform: none;
-  background: rgba(255, 255, 255, 0.02);
-  border-color: var(--card-border);
-  box-shadow: none;
 }
 
 /* ─── Toolkit Page ─── */
