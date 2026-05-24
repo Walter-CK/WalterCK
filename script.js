@@ -405,10 +405,17 @@ if (hamburger && nav) {
     const observer = reduceMotion ? null : new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (!entry.isIntersecting) return;
-        entry.target.classList.add('is-visible', 'breathe-once');
+        entry.target.classList.add('is-visible');
         observer.unobserve(entry.target);
       });
     }, { threshold: 0.12, rootMargin: '0px 0px -46px 0px' });
+    const revealVariants = [
+      { x: 0, y: 28, rotate: '0deg', scale: 0.985 },
+      { x: -18, y: 24, rotate: '-1.2deg', scale: 0.985 },
+      { x: 18, y: 24, rotate: '1.2deg', scale: 0.985 },
+      { x: 0, y: 34, rotate: '0.8deg', scale: 0.972 },
+      { x: -10, y: 18, rotate: '-0.6deg', scale: 0.99 }
+    ];
 
     function prepareReveals(root = document) {
       const targets = root instanceof Element && root.matches(revealSelector)
@@ -425,7 +432,12 @@ if (hamburger && nav) {
         }
 
         el.classList.add('reveal-ready');
-        el.style.setProperty('--reveal-delay', `${index * 25}ms`);
+        const variant = revealVariants[index % revealVariants.length];
+        el.style.setProperty('--reveal-delay', `${Math.min(index, 8) * 18}ms`);
+        el.style.setProperty('--reveal-x', `${variant.x}px`);
+        el.style.setProperty('--reveal-y', `${variant.y}px`);
+        el.style.setProperty('--reveal-rotate', variant.rotate);
+        el.style.setProperty('--reveal-scale', variant.scale);
         observer.observe(el);
       });
     }
@@ -441,17 +453,24 @@ if (hamburger && nav) {
         if (card.dataset.tiltReady) return;
         card.dataset.tiltReady = 'true';
 
+        card.addEventListener('pointerenter', () => {
+          card.style.transition = 'transform 0.12s ease-out';
+        });
+
         card.addEventListener('pointermove', event => {
           const rect = card.getBoundingClientRect();
-          const x = event.clientX - rect.left;
-          const y = event.clientY - rect.top;
-          const rotateX = ((y - rect.height / 2) / (rect.height / 2)) * -4.5;
-          const rotateY = ((x - rect.width / 2) / (rect.width / 2)) * 4.5;
-          card.style.transform = `perspective(760px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-7px)`;
+          const intensity = card.classList.contains('fp-feat') ? 6 : 8;
+          const x = (event.clientX - rect.left) / rect.width - 0.5;
+          const y = (event.clientY - rect.top) / rect.height - 0.5;
+          card.style.transform = `perspective(600px) rotateY(${(x * intensity).toFixed(2)}deg) rotateX(${(-y * intensity).toFixed(2)}deg) translateY(-6px)`;
         });
 
         card.addEventListener('pointerleave', () => {
+          card.style.transition = 'transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)';
           card.style.transform = '';
+          window.setTimeout(() => {
+            if (!card.matches(':hover')) card.style.transition = '';
+          }, 450);
         });
       });
     }
@@ -472,14 +491,13 @@ if (hamburger && nav) {
   }
 
   function initCursor() {
-    const dot = document.getElementById('cursor-dot');
-    const ring = document.getElementById('cursor-ring');
-    if (!dot || !ring || reduceMotion || !finePointer) return;
+    const glow = document.getElementById('cursor-glow');
+    if (!glow || reduceMotion || !finePointer) return;
 
-    let targetX = -100;
-    let targetY = -100;
-    let ringX = targetX;
-    let ringY = targetY;
+    let targetX = -999;
+    let targetY = -999;
+    let glowX = targetX;
+    let glowY = targetY;
 
     document.addEventListener('pointermove', event => {
       targetX = event.clientX;
@@ -487,26 +505,16 @@ if (hamburger && nav) {
       document.body.classList.add('cursor-ready');
     }, { passive: true });
 
-    document.addEventListener('pointerover', event => {
-      if (event.target.closest('a, button, input, textarea, select, .card, .filter-chip, .pfp-cookie-wrap')) {
-        document.body.classList.add('cursor-hovering');
-      }
-    });
-
-    document.addEventListener('pointerout', event => {
-      if (event.target.closest('a, button, input, textarea, select, .card, .filter-chip, .pfp-cookie-wrap')) {
-        document.body.classList.remove('cursor-hovering');
-      }
+    document.addEventListener('pointerleave', () => {
+      document.body.classList.remove('cursor-ready');
     });
 
     function animate() {
-      ringX += (targetX - ringX) * 0.16;
-      ringY += (targetY - ringY) * 0.16;
+      glowX += (targetX - glowX) * 0.1;
+      glowY += (targetY - glowY) * 0.1;
 
-      dot.style.left = `${targetX}px`;
-      dot.style.top = `${targetY}px`;
-      ring.style.left = `${ringX}px`;
-      ring.style.top = `${ringY}px`;
+      glow.style.left = `${glowX}px`;
+      glow.style.top = `${glowY}px`;
 
       requestAnimationFrame(animate);
     }
