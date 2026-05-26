@@ -1,5 +1,11 @@
 // GLOBAL JS
 
+// ── Vercel Speed Insights ──────────────────────────────────────────────────
+import { injectSpeedInsights } from './vendor/speed-insights.mjs';
+
+// Initialize Speed Insights
+injectSpeedInsights();
+
 // ── Slug helper (Featured pages + banner) ─────────────────────────────────
 function toSlug(title) {
   return title

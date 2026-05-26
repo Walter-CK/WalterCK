@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Build artifacts
+dist/
+build/
+.cache/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
