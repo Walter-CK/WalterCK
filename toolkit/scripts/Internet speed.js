@@ -4,7 +4,7 @@
 let result = await (async () => {
   try {
     // Decide download size
-    let downloadBytes = args.shortcutParameter ? 5_000_000 : 250_000;
+    let downloadBytes = args.shortcutParameter ? 1_000_000 : 250_000;
     let req = new Request(`https://speed.cloudflare.com/__down?bytes=${downloadBytes}`);
 
     // Download speed
