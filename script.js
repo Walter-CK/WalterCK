@@ -112,7 +112,7 @@ if (gridContainer) {
 
   async function loadAll() {
     try {
-      const res = await fetch('toolkit.json', { cache: 'no-store' });
+      const res = await fetch('/toolkit/toolkit.json', { cache: 'no-store' });
       const raw = await res.json();
 
       const mapObj = raw.find(it => !it.title);
