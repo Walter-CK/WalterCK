@@ -83,7 +83,7 @@ const ROUTINES = {
     { title: "Break & Feed Annie", time: "7:45", subtitle: "Snack & pet", emoji: "🐈", bg: "7C3A2D" },
     { title: "Productive/Family", time: "8:00", subtitle: "Work + chill", emoji: "👨‍👩‍👦", bg: "35495E" },
     { title: "Breakfast", time: "8:45", subtitle: "Fuel up", emoji: "🍳", bg: "FFB400" },
-    { title: "Brush Teeth", time: "8:55", subtitle: "Fresh ash", emoji: "😬", bg: "00A6FB" },
+    { title: "Brush Teeth", time: "8:55", subtitle: "Fresh as", emoji: "😬", bg: "00A6FB" },
     { title: "Your Day", time: "9:00", subtitle: "Enjoy it", emoji: "🌇", bg: "FFB84D" },
     { title: "Dinner", time: "6:00", subtitle: "Refuel", emoji: "🍝", bg: "FF9800" },
     { title: "Shower & Brush Teeth", time: "6:30", subtitle: "Reset", emoji: "🚿", bg: "7B1FA2" },
