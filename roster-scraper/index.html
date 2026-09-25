@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Roster Scraper — WalterCK</title>
+  <title>Roster Scraper | WalterCK</title>
   <meta name="description" content="A Playwright script that logs into McDonald's Australia's myRestaurant portal, pulls your roster, and turns it into a JSON feed you can wire up to iOS Shortcuts.">
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#05070a">
@@ -169,7 +169,7 @@
 
       <h1>Roster Scraper</h1>
 
-      <p class="fp-hero-subtitle">Logs into McDonald's Australia's myRestaurant portal, reads your published roster, and turns it into a plain JSON feed — so a phone automation can set your shift alarms without you opening the app.</p>
+      <p class="fp-hero-subtitle">Logs into McDonald's Australia's myRestaurant portal, reads your published roster, and turns it into a plain JSON feed so a phone automation can set your shift alarms without you opening the app.</p>
 
       <div class="fp-cta-row">
         <a class="fp-btn-primary" href="https://github.com/Walter-CK/WalterCK/tree/main/roster-scraper" target="_blank" rel="noopener noreferrer">
@@ -184,7 +184,7 @@
     <section class="fp-section">
       <div class="fp-divider"></div>
       <h2>Why this exists</h2>
-      <p>myRestaurant doesn't have an API, a calendar export, or a way to get notified when a new roster's published. If you want your shifts anywhere else — a Shortcuts automation, a calendar, an alarm — you're stuck opening the app and reading it yourself, every week.</p>
+      <p>myRestaurant doesn't have an API, a calendar export, or a way to get notified when a new roster's published. If you want your shifts anywhere else like a Shortcuts automation, a calendar, an alarm then you're stuck opening the app and reading it yourself, every week.</p>
       <p>This script does that reading for you: it drives a real browser through the actual login flow (McDonald's uses Microsoft SSO, so there's no simple form-post shortcut here), pulls the roster page's HTML once you're in, and parses out every shift into structured JSON.</p>
     </section>
 
@@ -192,7 +192,7 @@
       <div class="fp-divider"></div>
       <h2>How it fits together</h2>
       <div class="fp-diagram">roster-scrape/
-├── scrape_roster.py   <strong>the whole thing — login, scrape, parse, write</strong>
+├── scrape_roster.py   <strong>the whole thing; login, scrape, parse, write</strong>
 ├── requirements.txt   <strong>playwright, python-dotenv</strong>
 ├── .env               <strong>your login, never committed</strong>
 ├── .gitignore         <strong>keeps .env and debug files out of git</strong>
@@ -202,7 +202,7 @@
         <tr><th>File</th><th>What it does</th></tr>
         <tr><td><code>scrape_roster.py</code></td><td>Logs in, opens the roster page, parses shifts, writes <code>roster.json</code></td></tr>
         <tr><td><code>requirements.txt</code></td><td>Python packages the script needs</td></tr>
-        <tr><td><code>.env</code></td><td>Your myRestaurant username and password — stays on your machine</td></tr>
+        <tr><td><code>.env</code></td><td>Your myRestaurant username and password which stays on your machine</td></tr>
         <tr><td><code>roster.json</code></td><td>The output: every upcoming shift, grouped by roster week</td></tr>
       </table>
     </section>
@@ -221,28 +221,28 @@ cd WalterCK/roster-scraper</code></pre>
 
         <li>
           <h3>Install Python</h3>
-          <p>You need Python 3.10 or newer. If <code>python --version</code> in a terminal doesn't show that, grab it from <a href="https://www.python.org/downloads/" target="_blank" rel="noopener noreferrer">python.org</a> — on Windows, tick "Add Python to PATH" during install.</p>
+          <p>You need Python 3.10 or newer. If <code>python --version</code> in a terminal doesn't show that, grab it from <a href="https://www.python.org/downloads/" target="_blank" rel="noopener noreferrer">python.org</a> on Windows, tick "Add Python to PATH" during install.</p>
         </li>
 
         <li>
           <h3>Install the dependencies</h3>
           <pre><code>pip install -r requirements.txt
 playwright install chromium</code></pre>
-          <p>The second command downloads the actual browser Playwright drives — it's a one-time download, separate from any browser you already have installed.</p>
+          <p>The second command downloads the actual browser Playwright drives. It's a one-time download, separate from any browser you already have installed.</p>
         </li>
 
         <li>
           <h3>Add your login</h3>
-          <p>Open <code>.env</code> in any text editor and fill in your myRestaurant credentials — the same archID and password you use to log in normally.</p>
+          <p>Open <code>.env</code> in any text editor and fill in your myRestaurant credentials (the same archID and password you use to log in normally)</p>
           <pre><code>MYJOB_USERNAME=your.username@crew.mcd.com
 MYJOB_PASSWORD=your-password</code></pre>
-          <div class="fp-callout"><strong>This file never leaves your machine.</strong> It's listed in <code>.gitignore</code>, so a normal <code>git push</code> won't include it. Don't paste your real credentials anywhere else — not into an issue, a message, or a screenshot.</div>
+          <div class="fp-callout"><strong>This file never leaves your machine.</strong> It's listed in <code>.gitignore</code>, so a normal <code>git push</code> won't include it. Don't paste your real credentials anywhere else for security ofc.</div>
         </li>
 
         <li>
           <h3>Run it</h3>
           <pre><code>python scrape_roster.py</code></pre>
-          <p>First run, open <code>scrape_roster.py</code> and set <code>HEADLESS = False</code> near the top — this pops up a visible browser window so you can watch the login happen and confirm it's working, rather than running invisibly. Once you've seen it succeed once, switch it back to <code>True</code> for normal use.</p>
+          <p>First run, open <code>scrape_roster.py</code> and set <code>HEADLESS = False</code> near the top. This pops up a visible browser window so you can watch the login happen and confirm it's working, rather than running invisibly. Once you've seen it succeed once, switch it back to <code>True</code> for normal use.</p>
           <p>A successful run ends with a line like <code>Wrote 7 shifts across 2 week(s) to roster.json</code>. If it fails partway through, it saves a screenshot and the page's HTML next to the script so you can see exactly what it was looking at when it broke.</p>
         </li>
       </ol>
@@ -270,7 +270,7 @@ MYJOB_PASSWORD=your-password</code></pre>
     }
   ]
 }</code></pre>
-      <p><code>hours</code> is a duration, not a decimal — <code>"3:15"</code> means 3 hours 15 minutes, not 3.15 hours.</p>
+      <p><code>hours</code> is a duration, not a decimal (<code>"3:15"</code> means 3 hours 15 minutes, not 3.15 hours.)</p>
     </section>
 
     <section class="fp-section">
@@ -282,7 +282,7 @@ MYJOB_PASSWORD=your-password</code></pre>
         <div class="fp-feat">
           <div class="fp-feat-icon"><i data-lucide="upload-cloud" size="26"></i></div>
           <h3>Push to GitHub after each run</h3>
-          <p>The script commits and pushes <code>roster.json</code> automatically if it changed, so the latest roster is always sitting in the repo — no manual upload step.</p>
+          <p>The script commits and pushes <code>roster.json</code> automatically if it changed, so the latest roster is always sitting in the repo with no manual upload step.</p>
         </div>
         <div class="fp-feat">
           <div class="fp-feat-icon"><i data-lucide="clock" size="26"></i></div>
@@ -300,7 +300,7 @@ MYJOB_PASSWORD=your-password</code></pre>
     <section class="fp-section">
       <div class="fp-divider"></div>
       <h2>What the Shortcut actually does</h2>
-      <p>The Shortcut is the other half of this system — it reads <code>roster.json</code> and turns it into something you actually look at, without opening the myRestaurant app.</p>
+      <p>The Shortcut is the other half of this system. It reads <code>roster.json</code> and turns it into something you actually look at, without opening the myRestaurant app.</p>
 
       <ol class="fp-steps">
         <li>
@@ -309,7 +309,7 @@ MYJOB_PASSWORD=your-password</code></pre>
         </li>
         <li>
           <h3>Sets alarms ahead of each shift</h3>
-          <p>Choose <strong>Create/Change Alarms</strong>, tell it how many minutes before a shift you want waking up, and it adds one alarm per upcoming shift automatically — no manually doing the maths on start times every week.</p>
+          <p>Choose <strong>Create/Change Alarms</strong>, tell it how many minutes before a shift you want waking up, and it adds one alarm per upcoming shift automatically.</p>
         </li>
         <li>
           <h3>Keeps your alarms in sync</h3>
@@ -317,19 +317,19 @@ MYJOB_PASSWORD=your-password</code></pre>
         </li>
         <li>
           <h3>Triggers a fresh scrape on demand</h3>
-          <p>Choose <strong>Re-scan shifts</strong> and the Shortcut asks GitHub to run the scraper again right away, instead of waiting for the next scheduled run — handy the moment a new roster gets published.</p>
+          <p>Choose <strong>Re-scan shifts</strong> and the Shortcut asks GitHub to run the scraper again right away, instead of waiting for the next scheduled run so you can check the moment a new roster gets published.</p>
         </li>
       </ol>
 
       <div class="fp-callout">
-        <strong>This is a template, not a plug-and-play app.</strong> The Shortcut is wired to my GitHub repo and my roster's JSON shape — using it yourself means pointing it at your own <code>roster.json</code> (and running your own copy of the scraper, or one adapted to your employer's portal). It's shared as a working example to adapt, not a one-tap install.
+        <strong>This is a template, not a plug-and-play app.</strong> The Shortcut is wired to my GitHub repo and my roster's JSON shape so using it yourself means pointing it at your own <code>roster.json</code> (and running your own copy of the scraper, or one adapted to your employer's portal). It's shared as a working example to adapt, not a one-tap install.
       </div>
     </section>
 
     <section class="fp-section">
       <div class="fp-divider"></div>
       <div class="fp-callout">
-        <strong>Heads up if you're adapting this yourself:</strong> myRestaurant's login flow is McDonald's own enterprise Microsoft SSO setup, not a simple username/password form — expect to spend time in the script's selectors if your restaurant's portal renders slightly differently, or if Microsoft/McDonald's change the page layout later. The script logs each step as it goes, which makes it easier to see exactly where a run stalls.
+        <strong>Heads up if you're adapting this yourself:</strong> myRestaurant's login flow is McDonald's own enterprise Microsoft SSO setup, not a simple username/password form so maybe expect to spend time in the script's selectors if your restaurant's portal renders slightly differently, or if Microsoft/McDonald's change the page layout later. The script logs each step as it goes, which makes it easier to see exactly where a run stalls.
       </div>
       <p style="margin-top:24px; color: var(--muted); font-size: 0.9rem;">
         Built by <a href="../../">Walter MacLean</a>. Source and issues on <a href="https://github.com/Walter-CK/WalterCK/tree/main" target="_blank" rel="noopener noreferrer">GitHub</a>.
