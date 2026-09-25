@@ -1,0 +1,64 @@
+name: Scrape Roster
+
+on:
+  # Daily automatic run — adjust the time to whenever suits you.
+  # Cron is UTC; 20:00 UTC = 6:00 AM AEST (Brisbane, no DST) the next day.
+  schedule:
+    - cron: "0 0 * * *"
+
+  # On-demand run, triggered by the Shortcut's "Re-scan shifts" action
+  # via a POST to the GitHub API (see the repo README for the exact call).
+  repository_dispatch:
+    types: [rescan]
+
+  # Lets you manually click "Run workflow" in the Actions tab too, handy
+  # for testing without needing the Shortcut or waiting for the schedule.
+  workflow_dispatch:
+
+permissions:
+  contents: write   # needed so the workflow can commit + push roster.json
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10   # safety net — don't let a hung login run forever
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+        with:
+          # Script commits with the default git identity below; a full
+          # history isn't needed for that, so keep the checkout fast.
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install Playwright's browser
+        run: playwright install chromium --with-deps
+
+      - name: Configure git identity for the commit the script makes
+        run: |
+          git config --global user.name "roster-scrape-bot"
+          git config --global user.email "actions@users.noreply.github.com"
+
+      - name: Run the scraper
+        env:
+          MYJOB_USERNAME: ${{ secrets.MYJOB_USERNAME }}
+          MYJOB_PASSWORD: ${{ secrets.MYJOB_PASSWORD }}
+        run: python scrape_roster.py
+
+      - name: Upload debug artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-output
+          path: |
+            error_screenshot.png
+            error_page.html
+          if-no-files-found: ignore
