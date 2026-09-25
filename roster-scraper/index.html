@@ -172,7 +172,10 @@
       <p class="fp-hero-subtitle">Logs into McDonald's Australia's myRestaurant portal, reads your published roster, and turns it into a plain JSON feed — so a phone automation can set your shift alarms without you opening the app.</p>
 
       <div class="fp-cta-row">
-        <a class="fp-btn-primary" href="https://github.com/Walter-CK/WalterCK/tree/main/roster-scraper" target="_blank" rel="noopener noreferrer">
+        <a class="fp-btn-primary" href="https://www.icloud.com/shortcuts/REPLACE-WITH-YOUR-SHARE-LINK" target="_blank" rel="noopener noreferrer">
+          <i data-lucide="download" size="18"></i> Get the Shortcut
+        </a>
+        <a class="fp-btn-secondary" href="https://github.com/Walter-CK/WalterCK/tree/main/roster-scraper" target="_blank" rel="noopener noreferrer">
           <i data-lucide="github" size="18"></i> Source on GitHub
         </a>
         <span class="fp-tag">
@@ -294,6 +297,35 @@ MYJOB_PASSWORD=your-password</code></pre>
           <h3>Pull it into a Shortcut</h3>
           <p>An iOS Shortcut fetches <code>roster.json</code> straight from GitHub, reads through each week and shift, and sets an alarm ahead of each one. Private repo? The Shortcut authenticates with a fine-grained token scoped to read-only access on just this repo.</p>
         </div>
+      </div>
+    </section>
+
+    <section class="fp-section">
+      <div class="fp-divider"></div>
+      <h2>What the Shortcut actually does</h2>
+      <p>The Shortcut is the other half of this system — it reads <code>roster.json</code> and turns it into something you actually look at, without opening the myRestaurant app.</p>
+
+      <ol class="fp-steps">
+        <li>
+          <h3>Pulls your latest roster</h3>
+          <p>Fetches <code>roster.json</code> straight from GitHub and groups your shifts into <strong>This Week</strong> and <strong>Next Week</strong>, showing the day, start time and end time for each one.</p>
+        </li>
+        <li>
+          <h3>Sets alarms ahead of each shift</h3>
+          <p>Choose <strong>Create/Change Alarms</strong>, tell it how many minutes before a shift you want waking up, and it adds one alarm per upcoming shift automatically — no manually doing the maths on start times every week.</p>
+        </li>
+        <li>
+          <h3>Keeps your alarms in sync</h3>
+          <p>Run it again after a new roster's published and it clears out the old shift alarms before creating the new ones, so you're never left with a stale alarm for a shift that got moved or dropped.</p>
+        </li>
+        <li>
+          <h3>Triggers a fresh scrape on demand</h3>
+          <p>Choose <strong>Re-scan shifts</strong> and the Shortcut asks GitHub to run the scraper again right away, instead of waiting for the next scheduled run — handy the moment a new roster gets published.</p>
+        </li>
+      </ol>
+
+      <div class="fp-callout">
+        <strong>This is a template, not a plug-and-play app.</strong> The Shortcut is wired to my GitHub repo and my roster's JSON shape — using it yourself means pointing it at your own <code>roster.json</code> (and running your own copy of the scraper, or one adapted to your employer's portal). It's shared as a working example to adapt, not a one-tap install.
       </div>
     </section>
 
