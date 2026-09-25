@@ -63,6 +63,62 @@ def dump_debug(page, label: str):
         log(f"Could not save debug info: {e}")
 
 
+def dismiss_country_language_modal(page):
+    """
+    Checks for and dismisses the "Country and Language" modal if present.
+    Safe to call repeatedly -- it's a fast no-op (short timeout) if the
+    modal isn't showing.
+
+    Confirmed from live runs this can:
+      (a) appear at more than one point in the flow, not just once after
+          archID login, and
+      (b) start closing on its own (page-driven, not us) WHILE we're mid-way
+          through filling it -- e.g. a "Selecting Crew" click landing right
+          as a navigation kicks off underneath it. In that case the Save
+          button can go stale/invisible mid-click, and blindly waiting the
+          default 30s on that click burns the whole run for nothing, since
+          the modal was already on its way out regardless of what we do.
+
+    So: every internal action here uses a short timeout and is treated as
+    best-effort, and at the end we re-check whether the modal is actually
+    still there rather than assuming our clicks worked.
+    """
+    try:
+        page.wait_for_selector('text=Country and Language', timeout=3000)
+    except PWTimeout:
+        return  # not showing, nothing to do
+
+    log("Country/Language modal present -- dismissing...")
+    try:
+        selects = page.locator('select')
+        selects.nth(0).select_option(label="Australia", timeout=3000)
+        page.wait_for_timeout(300)
+        selects.nth(1).select_option(label="English", timeout=3000)
+        page.wait_for_timeout(300)
+    except Exception as e:
+        log(f"Could not set Country/Language dropdowns ({e}), trying Save anyway...")
+
+    # Short timeout on purpose -- if the modal is already closing (page's
+    # own navigation took over), a long wait here just burns time on a
+    # button that will never become clickable again. If it's genuinely
+    # still open, 3s is plenty for a click.
+    try:
+        page.click('button:has-text("Save")', timeout=3000)
+        page.wait_for_timeout(500)
+    except Exception as e:
+        log(f"Save click didn't land ({e}) -- checking if modal closed anyway...")
+
+    # Don't trust that the click "worked" -- verify. If the modal text is
+    # gone, we're fine regardless of how it closed. If it's still there,
+    # log it loudly instead of silently pressing on into a login attempt
+    # that's guaranteed to fail (blank Country/Language filters Crew out).
+    still_open = page.locator('text=Country and Language').count() > 0
+    if still_open:
+        log("WARNING: Country/Language modal still appears open after dismiss attempt.")
+    else:
+        log("Country/Language modal dismissed (or closed on its own).")
+
+
 def login(page):
     log("Navigating to myRestaurant home (first hit reliably errors)...")
     page.goto(HOME_URL, timeout=NAV_TIMEOUT_MS)
@@ -103,26 +159,12 @@ def login(page):
     # A "Country and Language" modal can appear over the role picker and
     # blocks all clicks until dismissed. It defaults to "Other" / blank,
     # which filters the Crew role option out of the picker entirely --
-    # must be set explicitly.
-    try:
-        page.wait_for_selector('text=Country and Language', timeout=5000)
-        log("Setting Country/Language to Australia/English...")
-        selects = page.locator('select')
-        selects.nth(0).select_option(label="Australia")
-        page.wait_for_timeout(300)
-        selects.nth(1).select_option(label="English")
-        page.wait_for_timeout(300)
-        page.click('button:has-text("Save")')
-        page.wait_for_timeout(1000)
-    except PWTimeout:
-        log("No Country/Language modal shown.")
-    except Exception as e:
-        log(f"Could not set Country/Language dropdowns ({e}), trying Save anyway...")
-        try:
-            page.click('button:has-text("Save")')
-            page.wait_for_timeout(1000)
-        except Exception:
-            pass
+    # must be set explicitly. It can appear either right after archID
+    # login OR later, overlaying the Crew card / password field (confirmed
+    # from a live run where it popped up mid-way through role selection,
+    # silently blocking the password field underneath it for the rest of
+    # the run). So this gets called at multiple points, not just once.
+    dismiss_country_language_modal(page)
 
     # Step 2: role picker page ("Please choose your role below").
     log("Waiting for role picker page...")
@@ -130,17 +172,38 @@ def login(page):
         page.wait_for_selector('text=choose your role', timeout=NAV_TIMEOUT_MS)
         page.wait_for_selector('text=Crew', timeout=8000)
         log("Selecting 'Crew' role...")
-        page.click('text=Crew', timeout=8000)
+        try:
+            page.click('text=Crew', timeout=8000)
+        except PWTimeout:
+            # The modal can appear mid-click and intercept it (confirmed
+            # from a live run: click fired, modal was mid-navigation, click
+            # never actually registered on Crew). If that's what happened,
+            # dismiss it and retry the click once instead of giving up.
+            log("Crew click didn't land -- checking for an intercepting modal...")
+            dismiss_country_language_modal(page)
+            page.click('text=Crew', timeout=8000)
     except PWTimeout:
         log("No role picker / Crew option shown, continuing (may go straight to password form).")
         dump_debug(page, "role picker / Crew not found")
+
+    # The modal can appear here too -- right after clicking Crew, before the
+    # password form becomes interactable. Check again before waiting on it.
+    dismiss_country_language_modal(page)
 
     # Step 3: second login form -- username (may be pre-filled) + password,
     # separate "Login" button, distinct from the archID page's "Next".
     # The page contains multiple hidden password fields (one per role
     # section) -- target the Crew-specific one explicitly.
     log("Waiting for username/password form...")
-    page.wait_for_selector('#PasswordInputCrewNative', state="visible", timeout=NAV_TIMEOUT_MS)
+    try:
+        page.wait_for_selector('#PasswordInputCrewNative', state="visible", timeout=15000)
+    except PWTimeout:
+        # Field exists but is still hidden -- almost always means an
+        # overlay (the Country/Language modal, most likely) is still up.
+        # Try one more dismiss pass, then give the field a second chance.
+        log("Password field still hidden after 15s -- checking for a blocking overlay again...")
+        dismiss_country_language_modal(page)
+        page.wait_for_selector('#PasswordInputCrewNative', state="visible", timeout=NAV_TIMEOUT_MS)
 
     # Username field on this form may already be filled in -- only fill if empty.
     # NOTE: actual DOM id is "UsernameInputTxtCrewNative" (lowercase 's',
@@ -279,7 +342,8 @@ SHIFT_BLOCK_RE = re.compile(
     r"(?P<location>[A-Z][A-Za-z ]+(?:QLD|NSW|VIC|WA|SA|TAS|NT|ACT))\s*"
     r"Start\s+(?P<start>\d{1,2}:\d{2}\s*[AP]M).*?"
     r"Finish\s+(?P<finish>\d{1,2}:\d{2}\s*[AP]M).*?"
-    r"(?P<hours>\d{1,2}:\d{2})hrs",
+    r"(?P<hours>\d{1,2}:\d{2})hrs\s*"
+    r"(?P<role>[A-Za-z]{1,4}:[A-Za-z][A-Za-z ]*?)\s*\n",
     re.DOTALL,
 )
 
@@ -370,12 +434,14 @@ def parse_shifts(html: str) -> list[dict]:
             h, mnt = m.group("hours").split(":")
             hours_decimal = int(h) + int(mnt) / 60
 
+            weekday_name = date_obj.strftime("%A")  # e.g. "Wednesday"
+
             shift = {
-                "date": _fmt_date(date_obj),
+                "date": f"{weekday_name} {_fmt_date(date_obj)}",
                 "start": _fmt_time_12h(start_24),
                 "end": _fmt_time_12h(finish_24),
-                "location": m.group("location").strip(),
                 "hours": _fmt_hours(hours_decimal),
+                "role": m.group("role").strip(),
                 "_sort_key": (date_obj, start_24),  # dropped before output
             }
 
@@ -449,6 +515,57 @@ def main():
 
     OUTPUT_PATH.write_text(json.dumps(output, indent=2), encoding="utf-8")
     log(f"Wrote {total_shifts} shifts across {len(weeks)} week(s) to {OUTPUT_PATH}")
+
+    push_to_github()
+
+
+def push_to_github():
+    """Commit + push roster.json if it changed. Logs every step explicitly
+    so a CI failure shows up in the run's log instead of finishing silently
+    green with nothing pushed."""
+    import subprocess
+    repo_dir = OUTPUT_PATH.parent
+    log(f"push_to_github: repo_dir resolved to {repo_dir}")
+
+    def run(cmd):
+        result = subprocess.run(
+            cmd, cwd=repo_dir, capture_output=True, text=True, shell=False
+        )
+        log(f"$ {' '.join(cmd)}  (exit {result.returncode})")
+        if result.stdout.strip():
+            log(f"  stdout: {result.stdout.strip()}")
+        if result.stderr.strip():
+            log(f"  stderr: {result.stderr.strip()}")
+        return result
+
+    # Confirm we're actually inside a git repo before doing anything else --
+    # if this fails, every step after it would have failed silently before.
+    rev_parse = run(["git", "rev-parse", "--is-inside-work-tree"])
+    if rev_parse.returncode != 0:
+        log("push_to_github: not inside a git work tree, aborting push.")
+        return
+
+    status = run(["git", "status", "--porcelain", str(OUTPUT_PATH.name)])
+    if not status.stdout.strip():
+        log("roster.json unchanged, skipping git push.")
+        return
+
+    add = run(["git", "add", str(OUTPUT_PATH.name)])
+    if add.returncode != 0:
+        log(f"git add failed (exit {add.returncode}), aborting push.")
+        return
+
+    commit = run(["git", "commit", "-m", f"Update roster {datetime.now(TZ_BRISBANE).isoformat()}"])
+    if commit.returncode != 0:
+        log(f"git commit failed: {commit.stderr.strip()}")
+        return
+
+    push = run(["git", "push"])
+    if push.returncode != 0:
+        log(f"git push failed: {push.stderr.strip()}")
+        return
+
+    log("Pushed updated roster.json to GitHub.")
 
 
 if __name__ == "__main__":
