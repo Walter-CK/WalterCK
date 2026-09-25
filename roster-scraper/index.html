@@ -136,6 +136,20 @@
       .fp-table { font-size: 0.82rem; }
       .fp-diagram, .fp-section pre { font-size: 0.76rem; padding: 14px 16px; }
     }
+
+    /* ── fp-tag: non-interactive info pill, distinct from real CTA buttons ── */
+    .fp-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: transparent;
+      border: 1px dashed var(--card-border);
+      color: var(--muted);
+      border-radius: 14px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
   </style>
 </head>
 <body class="featured-page">
@@ -158,11 +172,11 @@
       <p class="fp-hero-subtitle">Logs into McDonald's Australia's myRestaurant portal, reads your published roster, and turns it into a plain JSON feed — so a phone automation can set your shift alarms without you opening the app.</p>
 
       <div class="fp-cta-row">
-        <a class="fp-btn-primary" href="https://github.com/Walter-CK/WalterCK/tree/main" target="_blank" rel="noopener noreferrer">
+        <a class="fp-btn-primary" href="https://github.com/Walter-CK/WalterCK/tree/main/roster-scraper" target="_blank" rel="noopener noreferrer">
           <i data-lucide="github" size="18"></i> Source on GitHub
         </a>
-        <span class="fp-btn-secondary" style="cursor:default;">
-          <i data-lucide="terminal" size="18"></i> Python + Playwright
+        <span class="fp-tag">
+          <i data-lucide="terminal" size="16"></i> Python + Playwright
         </span>
       </div>
     </section>
