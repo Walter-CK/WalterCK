@@ -1,680 +1,408 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta name="theme-color" content="#05070a">
-  <meta charset="utf-8">
-  <title>WalterCK | Developer & Creator</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Projects, shortcuts, scripts and experiments. Automation, tools and tech projects designed by Walter MacLean.">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Roster Scraper | WalterCK</title>
+  <meta name="description" content="A Playwright script that logs into McDonald's Australia's myRestaurant portal, pulls your roster, and turns it into a JSON feed you can wire up to iOS Shortcuts.">
   <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://walterck.com">
+  <meta name="theme-color" content="#05070a">
+
+  <link rel="icon" href="/images/walterck.png" />
+  <link rel="stylesheet" href="../../styles.css" />
   <link href="https://fonts.googleapis.com/css2?family=Oxanium" rel="stylesheet">
-  <link rel="preload" as="image" href="images/walterck.png">
 
-  <meta property="og:title" content="WalterCK">
-  <meta property="og:description" content="Projects, shortcuts, products and experiments.">
-  <meta property="og:image" content="https://walterck.com/images/walterck.png">
-  <meta property="og:url" content="https://walterck.com">
-  <meta property="og:type" content="website">
-
-  <script>
-    if (history.scrollRestoration) history.scrollRestoration = 'manual';
-    window.scrollTo(0, 0);
-  </script>
-
-  <link rel="icon" href="images/favicons/favicon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="images/favicons/apple-touch-icon.png">
-  <link rel="alternate icon" href="images/favicons/favicon.ico" type="image/x-icon">
-  <link rel="manifest" href="images/favicons/site.webmanifest">
-  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
-    /* ── Cookie Easter Egg ── */
+    /* This page keeps the site default accent (--accent), so no --fp-color override needed. */
 
-    .pfp-cookie-wrap {
-      position: relative;
-      display: inline-block;
-      cursor: pointer;
-      user-select: none;
+    /* ── fp-code: code blocks, inline code, file diagrams ── */
+    .fp-section pre {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      overflow-x: auto;
+      font-family: 'SF Mono', Menlo, Consolas, ui-monospace, monospace;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: #d8dee4;
+      margin: 0 0 14px;
+    }
+    .fp-section code {
+      font-family: 'SF Mono', Menlo, Consolas, ui-monospace, monospace;
+      font-size: 0.85em;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--card-border);
+      border-radius: 4px;
+      padding: 1px 6px;
+      color: var(--fp-color);
+    }
+    .fp-section pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      color: inherit;
     }
 
-    .pfp-peek-cookie {
+    .fp-diagram {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      font-family: 'SF Mono', Menlo, Consolas, ui-monospace, monospace;
+      font-size: 0.82rem;
+      line-height: 1.7;
+      color: var(--muted);
+      overflow-x: auto;
+      white-space: pre;
+      margin: 0 0 14px;
+    }
+    .fp-diagram strong { color: var(--text); font-weight: 600; }
+
+    /* ── fp-callout ── */
+    .fp-callout {
+      background: var(--fp-dim);
+      border: 1px solid var(--fp-glow-soft);
+      border-radius: 12px;
+      padding: 16px 18px;
+      font-size: 0.9rem;
+      color: #cfd6dc;
+      margin: 0 0 14px;
+    }
+    .fp-callout strong { color: var(--fp-color); }
+
+    /* ── fp-table: file breakdowns ── */
+    .fp-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin: 4px 0 14px;
+    }
+    .fp-table th, .fp-table td {
+      text-align: left;
+      padding: 10px 14px 10px 0;
+      border-bottom: 1px solid var(--card-border);
+      color: var(--muted);
+    }
+    .fp-table th {
+      font-weight: 600;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+    }
+    .fp-table td code { border: none; background: none; padding: 0; color: var(--fp-color); }
+
+    /* ── fp-steps: numbered setup walkthrough ── */
+    .fp-steps {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      counter-reset: fp-step;
+    }
+    .fp-steps > li {
+      counter-increment: fp-step;
+      position: relative;
+      padding: 0 0 28px 40px;
+      border-left: 1px solid var(--card-border);
+      margin-left: 13px;
+    }
+    .fp-steps > li:last-child { border-left-color: transparent; padding-bottom: 0; }
+    .fp-steps > li::before {
+      content: counter(fp-step);
       position: absolute;
+      left: -14px;
       top: 0;
-      right: 0;
-      left: unset;
-      z-index: 1;
-      transform: translateX(-15%) translateY(30%) rotate(50deg);
-      transition: transform 0.48s cubic-bezier(0.34, 1.56, 0.64, 1);
-      pointer-events: none;
-    }
-
-    @media (hover: hover) {
-      .pfp-cookie-wrap:hover .pfp-peek-cookie {
-        transform: translateX(20%) translateY(-10%) rotate(45deg);
-      }
-    }
-
-    @media (hover: none) {
-      .profile-pfp:hover {
-        transform: none !important;
-        box-shadow: 0 0 40px rgba(107, 140, 255, 0.4) !important;
-      }
-    }
-
-    .pfp-cookie-wrap .profile-pfp {
-      position: relative;
-      z-index: 2;
-    }
-
-    /* The traveller wrapper — contains two children that swap */
-    #cookie-traveller {
-      position: fixed;
-      z-index: 1001;
-      pointer-events: none;
-      width: 82px;
-      height: 82px;
-      display: none;
-    }
-
-    /* Both cookie faces sit on top of each other; JS toggles display */
-    #cookie-traveller-happy,
-    #cookie-traveller-chomp {
-      position: absolute;
-      top: 0; left: 0;
-    }
-
-    #cookie-canvas {
-      position: fixed;
-      inset: 0;
-      z-index: 1000;
-      pointer-events: none;
-      display: none;
-    }
-
-    #cookie-eaten-screen {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: #05070a;
-      z-index: 2000;
-      flex-direction: column;
+      width: 27px;
+      height: 27px;
+      border-radius: 50%;
+      background: var(--bg-900);
+      border: 1px solid var(--card-border);
+      color: var(--fp-color);
+      font-family: 'SF Mono', Menlo, Consolas, ui-monospace, monospace;
+      font-size: 0.78rem;
+      font-weight: 700;
+      display: flex;
       align-items: center;
       justify-content: center;
     }
-    #cookie-eaten-screen.visible {
-      display: flex;
-      background: #05070a;
+    .fp-steps h3 { margin: 0 0 6px; font-size: 1rem; font-weight: 700; color: var(--text); }
+    .fp-steps p { margin: 0 0 10px; font-size: 0.95rem; }
+    .fp-steps p:last-child { margin-bottom: 0; }
+
+    @media (max-width: 640px) {
+      .fp-table { font-size: 0.82rem; }
+      .fp-diagram, .fp-section pre { font-size: 0.76rem; padding: 14px 16px; }
     }
 
-    #cookie-eaten-msg {
-      font-family: 'Oxanium', sans-serif;
-      font-size: 1.8rem;
-      color: #6b8cff;
-      margin-top: 48px;
-      letter-spacing: 0.03em;
-      opacity: 0;
-      transform: translateY(22px);
-      animation: ck-fade-up 0.6s 0.5s forwards;
-    }
-    #cookie-reload-btn {
-      margin-top: 28px;
-      padding: 14px 38px;
+    /* ── fp-tag: non-interactive info pill, distinct from real CTA buttons ── */
+    .fp-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
       background: transparent;
-      border: 1.5px solid rgba(107, 140, 255, 0.5);
-      color: #6b8cff;
+      border: 1px dashed var(--card-border);
+      color: var(--muted);
       border-radius: 14px;
-      cursor: pointer;
-      font-size: 16px;
-      font-family: 'Oxanium', sans-serif;
-      letter-spacing: 0.05em;
-      opacity: 0;
-      transform: translateY(22px);
-      animation: ck-fade-up 0.6s 0.75s forwards;
-      transition: background 0.22s, border-color 0.22s;
-    }
-    #cookie-reload-btn:hover {
-      background: rgba(107, 140, 255, 0.12);
-      border-color: #6b8cff;
-    }
-    #cookie-reload-btn:active,
-    #cookie-reload-btn:focus { outline: none; }
-
-    #cookie-crumbs {
-      position: absolute;
-      /* anchor to the centre of the cookie SVG so crumbs spread out symmetrically */
-      left: 50%;
-      top: 50%;
-      pointer-events: none;
-    }
-
-    @keyframes ck-fade-up {
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes ck-cookie-pop {
-      0%   { opacity: 0; transform: scale(0) rotate(-22deg); }
-      62%  { transform: scale(1.16) rotate(4deg); }
-      100% { opacity: 1; transform: scale(1) rotate(0deg); }
-    }
-    .ck-pop {
-      animation: ck-cookie-pop 0.68s ease-out forwards;
+      font-size: 0.9rem;
+      font-weight: 600;
     }
   </style>
-
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Person",
-    "name": "Walter MacLean",
-    "url": "https://walterck.com",
-    "sameAs": ["https://github.com/WalterNCookie"]
-  }
-  </script>
 </head>
-<body>
+<body class="featured-page">
 
-  <canvas id="ambient-canvas" aria-hidden="true"></canvas>
-  <div id="cursor-glow" aria-hidden="true"></div>
+  <a href="../" class="fp-back-btn" aria-label="Back to toolkit">
+    <i data-lucide="arrow-left" size="18"></i>
+  </a>
 
   <main>
-    <section class="hero-main">
-      <div class="container hero-inner">
-
-        <div class="pfp-cookie-wrap" id="pfp-cookie-wrap">
-
-          <div class="pfp-peek-cookie">
-            <svg width="64" height="64" viewBox="0 0 100 100">
-              <defs>
-                <radialGradient id="cg-peek" cx="33%" cy="28%" r="72%">
-                  <stop offset="0%" stop-color="#ECAF48"/>
-                  <stop offset="100%" stop-color="#8A4A0A"/>
-                </radialGradient>
-              </defs>
-              <ellipse cx="52" cy="54" rx="40" ry="37" fill="rgba(0,0,0,0.16)"/>
-              <circle cx="50" cy="49" r="44" fill="#7A3A06"/>
-              <circle cx="50" cy="48" r="42" fill="url(#cg-peek)"/>
-              <ellipse cx="32" cy="29" rx="7" ry="5.5" fill="#2E1304"/>
-              <ellipse cx="62" cy="24" rx="6.5" ry="5" fill="#2E1304"/>
-              <ellipse cx="74" cy="51" rx="7" ry="5.5" fill="#2E1304"/>
-              <ellipse cx="24" cy="55" rx="6.5" ry="5" fill="#2E1304"/>
-              <ellipse cx="54" cy="66" rx="6" ry="6.5" fill="#2E1304"/>
-              <ellipse cx="44" cy="44" rx="5" ry="4" fill="#2E1304"/>
-              <ellipse cx="11" cy="54" rx="10" ry="5" fill="#7A3A06" transform="rotate(-28 11 54)"/>
-              <circle cx="6" cy="61" r="4" fill="#7A3A06"/>
-              <ellipse cx="89" cy="54" rx="10" ry="5" fill="#7A3A06" transform="rotate(28 89 54)"/>
-              <circle cx="94" cy="61" r="4" fill="#7A3A06"/>
-              <circle cx="38" cy="42" r="5.5" fill="#1A0800"/>
-              <circle cx="62" cy="42" r="5.5" fill="#1A0800"/>
-              <circle cx="39.5" cy="40.5" r="2" fill="white"/>
-              <circle cx="63.5" cy="40.5" r="2" fill="white"/>
-              <path d="M34 57 Q50 71 66 57" fill="none" stroke="#1A0800" stroke-width="3.5" stroke-linecap="round"/>
-            </svg>
-          </div>
-
-          <div class="profile-pfp">
-            <img src="images/walterck.png" alt="Walter MacLean" />
-          </div>
+    <section class="fp-hero">
+      <div class="fp-hero-icon-wrap">
+        <div class="fp-hero-ring"></div>
+        <div class="fp-hero-icon">
+          <i data-lucide="calendar-clock"></i>
         </div>
+      </div>
 
-        <h1>Walter CK</h1>
-        <div class="hero-cycle" aria-label="WalterCK makes websites, scripts, projects and automations">
-          <span class="hero-cycle-static">Making</span>
-          <span class="hero-cycle-window">
-            <span class="hero-cycle-track">
-              <span class="hero-cycle-item">websites</span>
-              <span class="hero-cycle-item">scripts</span>
-              <span class="hero-cycle-item">projects</span>
-              <span class="hero-cycle-item">automations</span>
-            </span>
-          </span>
+      <h1>Roster Scraper</h1>
+
+      <p class="fp-hero-subtitle">Logs into McDonald's Australia's myRestaurant portal, reads your published roster, and turns it into a plain JSON feed so a phone automation can set your shift alarms without you opening the app.</p>
+
+      <div class="fp-cta-row">
+        <a class="fp-btn-primary" href="https://github.com/Walter-CK/WalterCK/tree/main/roster-scraper" target="_blank" rel="noopener noreferrer">
+          <i data-lucide="github" size="18"></i> Source on GitHub
+        </a>
+        <a class="fp-btn-secondary" href="https://www.icloud.com/shortcuts/REPLACE-WITH-YOUR-SHARE-LINK" target="_blank" rel="noopener noreferrer">
+          <i data-lucide="download" size="18"></i> Bonus Shortcut
+        </a>
+      </div>
+    </section>
+
+    <section class="fp-section">
+      <div class="fp-divider"></div>
+      <h2>Why this exists</h2>
+      <p>myRestaurant doesn't have an API, a calendar export, or a way to get notified when a new roster's published. If you want your shifts anywhere else like a Shortcuts automation, a calendar, an alarm then you're stuck opening the app and reading it yourself, every week.</p>
+      <p>This script does that reading for you: it drives a real browser through the actual login flow (McDonald's uses Microsoft SSO, so there's no simple form-post shortcut here), pulls the roster page's HTML once you're in, and parses out every shift into structured JSON.</p>
+    </section>
+
+    <section class="fp-section">
+      <div class="fp-divider"></div>
+      <h2>How it fits together</h2>
+      <div class="fp-diagram">roster-scrape/
+├── scrape_roster.py   <strong>the whole thing; login, scrape, parse, write</strong>
+├── requirements.txt   <strong>playwright, python-dotenv</strong>
+├── .env               <strong>your login, never committed</strong>
+├── .gitignore         <strong>keeps .env and debug files out of git</strong>
+└── roster.json         ← <strong>output, one file, overwritten each run</strong></div>
+
+      <table class="fp-table">
+        <tr><th>File</th><th>What it does</th></tr>
+        <tr><td><code>scrape_roster.py</code></td><td>Logs in, opens the roster page, parses shifts, writes <code>roster.json</code></td></tr>
+        <tr><td><code>requirements.txt</code></td><td>Python packages the script needs</td></tr>
+        <tr><td><code>.env</code></td><td>Your myRestaurant username and password which stays on your machine</td></tr>
+        <tr><td><code>roster.json</code></td><td>The output: every upcoming shift, grouped by roster week</td></tr>
+      </table>
+    </section>
+
+    <section class="fp-section">
+      <div class="fp-divider"></div>
+      <h2>Setting it up</h2>
+
+      <ol class="fp-steps">
+        <li>
+          <h3>Get the files</h3>
+          <p>Clone or download the repo, then open a terminal in that folder.</p>
+          <pre><code>git clone https://github.com/Walter-CK/WalterCK.git
+cd WalterCK/roster-scraper</code></pre>
+        </li>
+
+        <li>
+          <h3>Install Python</h3>
+          <p>You need Python 3.10 or newer. If <code>python --version</code> in a terminal doesn't show that, grab it from <a href="https://www.python.org/downloads/" target="_blank" rel="noopener noreferrer">python.org</a> on Windows, tick "Add Python to PATH" during install.</p>
+        </li>
+
+        <li>
+          <h3>Install the dependencies</h3>
+          <pre><code>pip install -r requirements.txt
+playwright install chromium</code></pre>
+          <p>The second command downloads the actual browser Playwright drives. It's a one-time download, separate from any browser you already have installed.</p>
+        </li>
+
+        <li>
+          <h3>Add your login</h3>
+          <p>Open <code>.env</code> in any text editor and fill in your myRestaurant credentials (the same archID and password you use to log in normally)</p>
+          <pre><code>MYJOB_USERNAME=your.username@crew.mcd.com
+MYJOB_PASSWORD=your-password</code></pre>
+          <div class="fp-callout"><strong>This file never leaves your machine.</strong> It's listed in <code>.gitignore</code>, so a normal <code>git push</code> won't include it. Don't paste your real credentials anywhere else for security ofc.</div>
+        </li>
+
+        <li>
+          <h3>Run it</h3>
+          <pre><code>python scrape_roster.py</code></pre>
+          <p>First run, open <code>scrape_roster.py</code> and set <code>HEADLESS = False</code> near the top. This pops up a visible browser window so you can watch the login happen and confirm it's working, rather than running invisibly. Once you've seen it succeed once, switch it back to <code>True</code> for normal use.</p>
+          <p>A successful run ends with a line like <code>Wrote 7 shifts across 2 week(s) to roster.json</code>. If it fails partway through, it saves a screenshot and the page's HTML next to the script so you can see exactly what it was looking at when it broke.</p>
+        </li>
+      </ol>
+    </section>
+
+    <section class="fp-section">
+      <div class="fp-divider"></div>
+      <h2>What comes out</h2>
+      <p>Every run produces a fresh <code>roster.json</code>, shifts grouped by the roster's own weekly periods:</p>
+      <pre><code>{
+  "last_updated": "2026-09-25T09:25:00+10:00",
+  "weeks": [
+    {
+      "week_start": "21/09/26",
+      "week_end": "27/09/26",
+      "shifts": [
+        {
+          "date": "23/09/26",
+          "start": "1:00 PM",
+          "end": "4:00 PM",
+          "location": "BERRINBA QLD",
+          "hours": "3:00"
+        }
+      ]
+    }
+  ]
+}</code></pre>
+      <p><code>hours</code> is a duration, not a decimal (<code>"3:15"</code> means 3 hours 15 minutes, not 3.15 hours.)</p>
+    </section>
+
+    <section class="fp-section">
+      <div class="fp-divider"></div>
+      <h2>Getting it onto your phone</h2>
+      <p class="fp-section-sub">The script runs on a computer, but the point is having your shifts on your phone without opening anything. The way I've got it wired up:</p>
+
+      <div class="fp-features">
+        <div class="fp-feat">
+          <div class="fp-feat-icon"><i data-lucide="upload-cloud" size="26"></i></div>
+          <h3>Push to GitHub after each run</h3>
+          <p>The script commits and pushes <code>roster.json</code> automatically if it changed, so the latest roster is always sitting in the repo with no manual upload step.</p>
+        </div>
+        <div class="fp-feat">
+          <div class="fp-feat-icon"><i data-lucide="clock" size="26"></i></div>
+          <h3>Runs on a schedule, in the cloud</h3>
+          <p>A GitHub Actions workflow runs the scraper daily on GitHub's own servers, so a newly published roster shows up without your computer needing to be on. <a href="#githubactions">Full setup below.</a></p>
+        </div>
+        <div class="fp-feat">
+          <div class="fp-feat-icon"><i data-lucide="smartphone" size="26"></i></div>
+          <h3>Pull it into a Shortcut</h3>
+          <p>An iOS Shortcut fetches <code>roster.json</code> straight from GitHub, reads through each week and shift, and sets an alarm ahead of each one. Private repo? The Shortcut authenticates with a fine-grained token scoped to read-only access on just this repo.</p>
         </div>
       </div>
     </section>
 
-    <section id="about" class="page-section">
-      <div class="container">
-        <h2>About</h2>
-        <p>This website's every shareable project/hobby I have, like a portfolio but cooler.<br><br>I've got a lot of ideas, so come check back every few months, something cool will be added.<br><br><strong>Thanks for visiting :)</strong></p>
+    <section class="fp-section" id="githubactions">
+      <div class="fp-divider"></div>
+      <h2>Running it with GitHub Actions</h2>
+      <p class="fp-section-sub">No always-on computer needed — GitHub runs the scraper for you, on a schedule, for free.</p>
+
+      <p>Task Scheduler or <code>cron</code> only work if your own machine is switched on at the right time. GitHub Actions runs the exact same script on GitHub's own servers instead, so it fires every morning whether your PC is asleep, off, or nowhere near you. This is what actually runs the scraper day to day now — not the local Task Scheduler setup described above.</p>
+
+      <ol class="fp-steps">
+        <li>
+          <h3>Add the workflow file</h3>
+          <p>Sits at <code>.github/workflows/scrape.yml</code> in the repo. It checks out the code, installs Python and Playwright, runs <code>scrape_roster.py</code>, and — if the roster changed — commits and pushes <code>roster.json</code> back to the repo itself.</p>
+        </li>
+
+        <li>
+          <h3>Add your login as repo secrets</h3>
+          <p>The workflow needs your myRestaurant credentials, but they can't sit in the repo as plain text the way your local <code>.env</code> does — GitHub Secrets exist for exactly this. In the repo: <strong>Settings → Secrets and variables → Actions → New repository secret.</strong></p>
+          <table class="fp-table">
+            <tr><th>Secret name</th><th>Value</th></tr>
+            <tr><td><code>MYJOB_USERNAME</code></td><td>Same as your local <code>.env</code></td></tr>
+            <tr><td><code>MYJOB_PASSWORD</code></td><td>Same as your local <code>.env</code></td></tr>
+          </table>
+          <p>The workflow reads these in as environment variables when it runs — nobody with read access to the repo can see the values, only the workflow itself while it's running.</p>
+        </li>
+
+        <li>
+          <h3>The schedule</h3>
+          <p>Set with a cron expression, which GitHub Actions always reads in UTC — not your local time.</p>
+          <pre><code>schedule:
+  - cron: "0 20 * * *"</code></pre>
+          <p>That's <code>20:00 UTC</code>, which lands at <strong>6:00 AM AEST</strong> the next day (Brisbane doesn't observe daylight saving, so this offset stays fixed year-round). Adjust the two numbers in the cron string if you want it running at a different time — first number is minutes, second is the UTC hour.</p>
+        </li>
+
+        <li>
+          <h3>Let it run on demand too</h3>
+          <p>Beyond the daily schedule, the workflow listens for two more triggers:</p>
+          <pre><code>on:
+  schedule:
+    - cron: "0 20 * * *"
+  repository_dispatch:
+    types: [rescan]
+  workflow_dispatch:</code></pre>
+          <p><code>workflow_dispatch</code> adds a manual "Run workflow" button in the repo's Actions tab — handy for testing without waiting on the schedule. <code>repository_dispatch</code> is what the Shortcut's "Re-scrape shifts" option uses: it sends a POST request to GitHub's API to kick off a run immediately, right from your phone.</p>
+        </li>
+
+        <li>
+          <h3>Set up the token for the Shortcut</h3>
+          <p>The Shortcut needs a GitHub token for two different jobs, so scope it for both: <strong>github.com → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new.</strong> Set repository access to this repo only, then grant:</p>
+          <table class="fp-table">
+            <tr><th>Permission</th><th>Access</th><th>Why</th></tr>
+            <tr><td>Contents</td><td>Read-only</td><td>Lets the Shortcut fetch <code>roster.json</code></td></tr>
+            <tr><td>Actions</td><td>Read and write</td><td>Lets the Shortcut's "Re-scrape shifts" trigger a workflow run</td></tr>
+          </table>
+          <div class="fp-callout"><strong>Miss the Actions permission and re-scrape silently fails.</strong> Reading the roster still works fine with Contents-only access, but the dispatch call needs write access to Actions specifically to be allowed to start a run — without it you'll just get a 403 with no obvious explanation the first time you tap "Re-scrape shifts."</div>
+          <p>Paste that same token into the Shortcut when it first asks for your <strong>GitHub API Key</strong> — it's used for both the roster fetch and the dispatch call.</p>
+        </li>
+
+        <li>
+          <h3>Check it actually ran</h3>
+          <p>Repo's <strong>Actions</strong> tab lists every run, scheduled or manual, with full logs — the same output you'd see running the script locally. If a run fails, the workflow uploads <code>error_screenshot.png</code> and <code>error_page.html</code> as downloadable artifacts on that run, same as a local failed run saves them next to the script.</p>
+        </li>
+      </ol>
+    </section>
+
+    <section class="fp-section">
+      <div class="fp-divider"></div>
+      <h2>What the Shortcut actually does</h2>
+      <p>The Shortcut is the other half of this system. It reads <code>roster.json</code> and turns it into something you actually look at, without opening the myRestaurant app.</p>
+
+      <ol class="fp-steps">
+        <li>
+          <h3>Pulls your latest roster</h3>
+          <p>Fetches <code>roster.json</code> straight from GitHub and groups your shifts into <strong>This Week</strong> and <strong>Next Week</strong>, showing the day, start time and end time for each one.</p>
+        </li>
+        <li>
+          <h3>Sets alarms ahead of each shift</h3>
+          <p>Choose <strong>Create/Change Alarms</strong>, tell it how many minutes before a shift you want waking up, and it adds one alarm per upcoming shift automatically.</p>
+        </li>
+        <li>
+          <h3>Keeps your alarms in sync</h3>
+          <p>Run it again after a new roster's published and it clears out the old shift alarms before creating the new ones, so you're never left with a stale alarm for a shift that got moved or dropped.</p>
+        </li>
+        <li>
+          <h3>Triggers a fresh scrape on demand</h3>
+          <p>Choose <strong>Re-scan shifts</strong> and the Shortcut asks GitHub to run the scraper again right away — this is the <code>repository_dispatch</code> call the GitHub Actions workflow listens for above — instead of waiting for the next scheduled run, so you can check the moment a new roster gets published.</p>
+        </li>
+      </ol>
+
+      <div class="fp-callout">
+        <strong>This is a template, not a plug-and-play app.</strong> The Shortcut is wired to my GitHub repo and my roster's JSON shape so using it yourself means pointing it at your own <code>roster.json</code> (and running your own copy of the scraper, or one adapted to your employer's portal). It's shared as a working example to adapt, not a one-tap install.
       </div>
     </section>
 
-    <section id="projects" class="page-section">
-      <div class="container">
-        <h2>Projects</h2>
-        <div class="grid">
-          <a class="card-link" href="toolkit/">
-            <article class="card">
-              <h3>Apple Toolkit</h3>
-              <p>Shortcuts &amp; Scripts (Scriptable)</p>
-            </article>
-          </a>
-          <a class="card-link" href="https://github.com/Walter-CK" target="_blank" rel="noopener noreferrer">
-            <article class="card">
-              <h3>Portfolio</h3>
-              <p>What you're looking at!</p>
-            </article>
-          </a>
-          <a class="card-link" href="https://maniaprint.online" target="_blank" rel="noopener noreferrer">
-            <article class="card">
-              <h3>Mania Print</h3>
-              <p>3D Printing Business</p>
-            </article>
-          </a>
-          <a class="card-link" href="https://billy-bit.com" target="_blank" rel="noopener noreferrer">
-            <article class="card">
-              <h3>Billy Bit</h3>
-              <p>My friend's website</p>
-            </article>
-          </a>
-          <a class="card-link" href="eureka-rich/">
-            <article class="card">
-              <h3>Eureka Rich</h3>
-              <p>Fun History Assessment Game</p>
-            </article>
-          </a>
-          <article class="card" onclick="location.href='desktop/'" style="cursor:pointer;">
-            <h3>HTML Desktop Background</h3>
-            <p>Enabled through <a href="https://apps.microsoft.com/detail/9ntm2qc6qws7" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">Lively Wallpaper</a></p>
-          </article>
-          <a class="card-link" href="roster-scraper/">
-            <article class="card">
-              <h3>Roster Scraper</h3>
-              <p>McDonald's myRestaurant → JSON feed for Shortcuts</p>
-            </article>
-          </a>
-          <article class="card card--locked">
-            <h3>The ADO</h3>
-            <p>Coming Soon</p>
-          </article>
-          <article class="card card--locked">
-            <h3>$</h3>
-            <p>Coming Soon</p>
-          </article>
-          <article class="card card--locked">
-            <h3>🎛️</h3>
-            <p>Coming</p>
-          </article>
-        </div>
+    <section class="fp-section">
+      <div class="fp-divider"></div>
+      <div class="fp-callout">
+        <strong>Heads up if you're adapting this yourself:</strong> myRestaurant's login flow is McDonald's own enterprise Microsoft SSO setup, not a simple username/password form so maybe expect to spend time in the script's selectors if your restaurant's portal renders slightly differently, or if Microsoft/McDonald's change the page layout later. The script logs each step as it goes, which makes it easier to see exactly where a run stalls.
       </div>
-    </section>
-
-    <section id="contact" class="page-section contact-section">
-      <div class="container">
-        <h2>Contact</h2>
-        <p>Email: <a href="mailto:yo@walterck.com">yo@walterck.com</a></p>
-        <p>Business: <a href="mailto:contact@maniaprint.online">contact@maniaprint.online</a></p>
-        <p>Discord: <a href="https://discord.com/users/952110713697108028">WalterNCookie</a></p>
-      </div>
+      <p style="margin-top:24px; color: var(--muted); font-size: 0.9rem;">
+        Built by <a href="../../">Walter MacLean</a>. Source and issues on <a href="https://github.com/Walter-CK/WalterCK/tree/main" target="_blank" rel="noopener noreferrer">GitHub</a>.
+      </p>
     </section>
   </main>
 
-  <!-- ── Cookie Easter Egg Elements ── -->
-
-  <canvas id="cookie-canvas"></canvas>
-
-  <!--
-    Two-phase traveller:
-    #cookie-traveller-happy  — shown on click/pop-in/zip to corner (full happy cookie)
-    #cookie-traveller-chomp  — shown only when lawnmower eating starts (chomping cookie)
-    JS swaps display between them at the right moment.
-  -->
-  <div id="cookie-traveller">
-
-    <!-- PHASE 1: happy full cookie (same face as the peek cookie) -->
-    <svg id="cookie-traveller-happy" width="82" height="82" viewBox="0 0 100 100">
-      <defs>
-        <radialGradient id="cg-happy" cx="33%" cy="28%" r="72%">
-          <stop offset="0%" stop-color="#ECAF48"/>
-          <stop offset="100%" stop-color="#8A4A0A"/>
-        </radialGradient>
-      </defs>
-      <ellipse cx="52" cy="54" rx="40" ry="37" fill="rgba(0,0,0,0.16)"/>
-      <circle cx="50" cy="49" r="44" fill="#7A3A06"/>
-      <circle cx="50" cy="48" r="42" fill="url(#cg-happy)"/>
-      <ellipse cx="32" cy="29" rx="7" ry="5.5" fill="#2E1304"/>
-      <ellipse cx="62" cy="24" rx="6.5" ry="5" fill="#2E1304"/>
-      <ellipse cx="74" cy="51" rx="7" ry="5.5" fill="#2E1304"/>
-      <ellipse cx="24" cy="55" rx="6.5" ry="5" fill="#2E1304"/>
-      <ellipse cx="54" cy="66" rx="6" ry="6.5" fill="#2E1304"/>
-      <ellipse cx="44" cy="44" rx="5" ry="4" fill="#2E1304"/>
-      <ellipse cx="11" cy="54" rx="10" ry="5" fill="#7A3A06" transform="rotate(-28 11 54)"/>
-      <circle cx="6" cy="61" r="4" fill="#7A3A06"/>
-      <ellipse cx="89" cy="54" rx="10" ry="5" fill="#7A3A06" transform="rotate(28 89 54)"/>
-      <circle cx="94" cy="61" r="4" fill="#7A3A06"/>
-      <circle cx="38" cy="42" r="5.5" fill="#1A0800"/>
-      <circle cx="62" cy="42" r="5.5" fill="#1A0800"/>
-      <circle cx="39.5" cy="40.5" r="2" fill="white"/>
-      <circle cx="63.5" cy="40.5" r="2" fill="white"/>
-      <path d="M34 57 Q50 71 66 57" fill="none" stroke="#1A0800" stroke-width="3.5" stroke-linecap="round"/>
-    </svg>
-
-    <!-- PHASE 2: chomping Pac-Man style cookie (hidden until eating starts) -->
-    <svg id="cookie-traveller-chomp" width="82" height="82" viewBox="0 0 100 100"
-         style="display:none; overflow:visible">
-      <defs>
-        <radialGradient id="cg-eat" cx="33%" cy="28%" r="72%">
-          <stop offset="0%" stop-color="#ECAF48"/>
-          <stop offset="100%" stop-color="#8A4A0A"/>
-        </radialGradient>
-        <clipPath id="chomp-clip">
-          <path id="chomp-clip-path" d="M50,50 L100,25 A62,62 0 1,0 100,75 Z"/>
-        </clipPath>
-      </defs>
-      <ellipse cx="52" cy="54" rx="40" ry="37" fill="rgba(0,0,0,0.16)"/>
-      <g clip-path="url(#chomp-clip)">
-        <circle cx="50" cy="49" r="44" fill="#7A3A06"/>
-        <circle cx="50" cy="48" r="42" fill="url(#cg-eat)"/>
-        <ellipse cx="32" cy="29" rx="7" ry="5.5" fill="#2E1304"/>
-        <ellipse cx="62" cy="24" rx="6.5" ry="5" fill="#2E1304"/>
-        <ellipse cx="74" cy="51" rx="7" ry="5.5" fill="#2E1304"/>
-        <ellipse cx="24" cy="55" rx="6.5" ry="5" fill="#2E1304"/>
-        <ellipse cx="54" cy="66" rx="6" ry="6.5" fill="#2E1304"/>
-        <ellipse cx="44" cy="44" rx="5" ry="4" fill="#2E1304"/>
-        <ellipse cx="11" cy="54" rx="10" ry="5" fill="#7A3A06" transform="rotate(-28 11 54)"/>
-        <circle cx="6" cy="61" r="4" fill="#7A3A06"/>
-        <ellipse cx="89" cy="54" rx="10" ry="5" fill="#7A3A06" transform="rotate(28 89 54)"/>
-        <circle cx="94" cy="61" r="4" fill="#7A3A06"/>
-        <!-- eyes sit in the upper half, safe from the mouth wedge -->
-        <circle cx="35" cy="36" r="5.5" fill="#1A0800"/>
-        <circle cx="60" cy="36" r="5.5" fill="#1A0800"/>
-        <circle cx="36.5" cy="34.5" r="2" fill="white"/>
-        <circle cx="61.5" cy="34.5" r="2" fill="white"/>
-      </g>
-      <!-- no crack lines, no chomp-line elements -->
-    </svg>
-
-  </div>
-
-  <!-- Eaten finale screen -->
-  <div id="cookie-eaten-screen">
-    <div id="cookie-full-wrap" class="ck-pop" style="position:relative;">
-      <svg width="120" height="120" viewBox="0 0 100 100">
-        <defs>
-          <radialGradient id="cg-full" cx="33%" cy="28%" r="72%">
-            <stop offset="0%" stop-color="#ECAF48"/>
-            <stop offset="100%" stop-color="#8A4A0A"/>
-          </radialGradient>
-        </defs>
-        <ellipse cx="52" cy="54" rx="40" ry="37" fill="rgba(0,0,0,0.16)"/>
-        <circle cx="50" cy="49" r="44" fill="#7A3A06"/>
-        <circle cx="50" cy="48" r="42" fill="url(#cg-full)"/>
-        <ellipse cx="32" cy="29" rx="7" ry="5.5" fill="#2E1304"/>
-        <ellipse cx="62" cy="24" rx="6.5" ry="5" fill="#2E1304"/>
-        <ellipse cx="74" cy="51" rx="7" ry="5.5" fill="#2E1304"/>
-        <ellipse cx="24" cy="55" rx="6.5" ry="5" fill="#2E1304"/>
-        <ellipse cx="54" cy="66" rx="6" ry="6.5" fill="#2E1304"/>
-        <ellipse cx="44" cy="44" rx="5" ry="4" fill="#2E1304"/>
-        <ellipse cx="11" cy="54" rx="10" ry="5" fill="#7A3A06" transform="rotate(-28 11 54)"/>
-        <circle cx="6" cy="61" r="4" fill="#7A3A06"/>
-        <ellipse cx="89" cy="54" rx="10" ry="5" fill="#7A3A06" transform="rotate(28 89 54)"/>
-        <circle cx="94" cy="61" r="4" fill="#7A3A06"/>
-        <path d="M31 42 Q37 36 43 42" fill="none" stroke="#1A0800" stroke-width="2.5" stroke-linecap="round"/>
-        <path d="M57 42 Q63 36 69 42" fill="none" stroke="#1A0800" stroke-width="2.5" stroke-linecap="round"/>
-        <path d="M38 60 Q50 54 62 60" fill="none" stroke="#1A0800" stroke-width="3" stroke-linecap="round"/>
-        <circle cx="26" cy="52" r="8" fill="#F07858" opacity="0.26"/>
-        <circle cx="74" cy="52" r="8" fill="#F07858" opacity="0.26"/>
-        <rect x="27" y="60" width="5" height="3" fill="#8B4010" rx="1" opacity="0.7" transform="rotate(12 27 60)"/>
-        <rect x="64" y="59" width="4" height="3" fill="#3A1A06" rx="1" opacity="0.7" transform="rotate(-9 64 59)"/>
-      </svg>
-      <div id="cookie-crumbs"></div>
-    </div>
-
-    <p id="cookie-eaten-msg">The page has been eaten.</p>
-    <button id="cookie-reload-btn" onclick="document.documentElement.style.background='#05070a';document.body.style.background='#05070a';location.reload()">Reload</button>
-  </div>
-
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <script src="script.js"></script>
-
-  <!-- ── Cookie Easter Egg Script ── -->
+  <script src="../../script.js"></script>
   <script>
-  (function () {
-    const CS          = 82;
-    const wrap        = document.getElementById('pfp-cookie-wrap');
-    const traveller   = document.getElementById('cookie-traveller');
-    const happySvg    = document.getElementById('cookie-traveller-happy');
-    const chompSvg    = document.getElementById('cookie-traveller-chomp');
-    const canvas      = document.getElementById('cookie-canvas');
-    const eaten       = document.getElementById('cookie-eaten-screen');
-    const crumbsEl    = document.getElementById('cookie-crumbs');
-
-    let phase = 'idle';
-    let rafId = null;
-
-    // ── Crumbs for finale ────────────────────────────────────────────────
-    const CRUMB_COLS = ['#9A5010','#C4841E','#6B3508','#E09835','#4A2004'];
-    for (let i = 0; i < 28; i++) {
-      const d = document.createElement('div');
-      const w = 3  + Math.random() * 14;
-      const h = 2  + Math.random() * 7;
-      Object.assign(d.style, {
-        position:     'absolute',
-        left:         ((Math.random() - 0.5) * 360) + 'px',
-        top:          ((Math.random() - 0.5) * 200) + 'px',
-        width:        w + 'px',
-        height:       h + 'px',
-        background:   CRUMB_COLS[Math.floor(Math.random() * CRUMB_COLS.length)],
-        borderRadius: '2px',
-        transform:    'rotate(' + (Math.random() * 360) + 'deg)',
-        opacity:      '0.72',
-        pointerEvents:'none',
-      });
-      crumbsEl.appendChild(d);
-    }
-
-    // ── Click handler ────────────────────────────────────────────────────
-    wrap.addEventListener('click', function () {
-      if (phase !== 'idle') return;
-
-      const rect = wrap.getBoundingClientRect();
-      const sx   = rect.left + rect.width  / 2 - CS / 2;
-      const sy   = rect.top  + rect.height / 2 - CS / 2;
-
-      // Start with happy face, chomp hidden
-      happySvg.style.display = 'block';
-      chompSvg.style.display = 'none';
-
-      Object.assign(traveller.style, {
-        display:    'block',
-        transition: 'none',
-        left:       sx + 'px',
-        top:        sy + 'px',
-        transform:  'scale(0) rotate(-15deg)',
-      });
-
-      phase = 'jumping';
-      wrap.querySelector('.pfp-peek-cookie').style.visibility = 'hidden';
-
-      // Pop out from behind pfp
-      requestAnimationFrame(function () {
-        requestAnimationFrame(function () {
-          traveller.style.transition = 'transform 0.38s cubic-bezier(0.34,1.56,0.64,1)';
-          traveller.style.transform  = 'scale(1.2) rotate(5deg)';
-        });
-      });
-
-      // Zip to top-left corner — still happy face during the zip
-      setTimeout(function () {
-        traveller.style.transition = 'left 0.32s ease-in, top 0.32s ease-in, transform 0.18s ease-out';
-        traveller.style.left      = (-CS) + 'px';
-        traveller.style.top       = '0px';
-        traveller.style.transform = 'scale(1)';
-      }, 320);
-
-      // Switch to chomping face exactly when eating begins
-      setTimeout(function () {
-        happySvg.style.display = 'none';
-        chompSvg.style.display = 'block';
-        phase = 'eating';
-        startEating();
-      }, 640);
-    });
-
-    // ── Update chomping mouth clip each frame ────────────────────────────
-    function updateChomp(mouthHalfAngleDeg, dir) {
-      const clipPathEl = document.getElementById('chomp-clip-path');
-      if (!clipPathEl) return;
-
-      const rad = mouthHalfAngleDeg * Math.PI / 180;
-      const r   = 62;
-      const tx  = 50 + r * Math.cos(-rad);
-      const ty  = 50 + r * Math.sin(-rad);
-      const bx  = 50 + r * Math.cos(rad);
-      const by  = 50 + r * Math.sin(rad);
-
-      // Everything except the wedge stays visible
-      clipPathEl.setAttribute('d', `M50,50 L${tx},${ty} A${r},${r} 0 1,0 ${bx},${by} Z`);
-
-      // Flip for leftward travel so mouth always faces the uneaten page
-      chompSvg.style.transform       = dir === -1 ? 'scaleX(-1)' : 'none';
-      chompSvg.style.transformOrigin = '41px 41px';
-    }
-
-    // ── Lawnmower eating loop ────────────────────────────────────────────
-    function startEating() {
-      traveller.style.transition = 'none';
-
-      canvas.style.display = 'block';
-      const newBanner = document.getElementById('new-banner');
-      if (newBanner) newBanner.style.display = 'none';
-
-      // State that persists across resize restarts
-      let x = -CS, row = 0, dir = 1, lastTs = null;
-      const parts    = [];
-      const trailPts = [];
-
-      // Resize handler: re-stamp the already-eaten area black on the
-      // new canvas size and keep going from the current cookie position.
-      function onResize() {
-        canvas.width  = window.innerWidth;
-        canvas.height = window.innerHeight;
-        // Repaint everything already eaten so there's no gap
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#05070a';
-        if (row > 0) ctx.fillRect(0, 0, canvas.width, row * CS);
-        const ry = row * CS;
-        if (dir === 1) {
-          if (x > 0) ctx.fillRect(0, ry, x, CS);
-        } else {
-          const s = x + CS;
-          if (s < canvas.width) ctx.fillRect(s, ry, canvas.width - s, CS);
-        }
-      }
-      window.addEventListener('resize', onResize);
-
-      // Initial size
-      canvas.width  = window.innerWidth;
-      canvas.height = window.innerHeight;
-
-      function getW() { return window.innerWidth;  }
-      function getH() { return window.innerHeight; }
-
-      function finish() {
-        window.removeEventListener('resize', onResize);
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#05070a';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        traveller.style.display = 'none';
-        canvas.style.display    = 'none';
-        eaten.classList.add('visible');
-        phase = 'eaten';
-      }
-
-      function tick(ts) {
-        const W = getW();
-        const H = getH();
-        const rows  = Math.ceil(H / CS) + 1;
-        const speed = ((rows + 1) * W) / 3100;
-        const ctx   = canvas.getContext('2d');
-
-        if (!lastTs) lastTs = ts;
-        const dt = Math.min(ts - lastTs, 40);
-        lastTs = ts;
-
-        x += dir * speed * dt;
-
-        if (dir === 1 && x >= W) {
-          row++; dir = -1; x = W + CS;
-          if (row >= rows) { finish(); return; }
-        } else if (dir === -1 && x <= -CS) {
-          row++; dir = 1; x = -CS;
-          if (row >= rows) { finish(); return; }
-        }
-
-        const curY = row * CS;
-
-        const chompHalf = 24 + 14 * Math.sin(ts * 0.012);
-        updateChomp(chompHalf, dir);
-
-        if (Math.random() < 0.3) {
-          const mx = x + (dir === 1 ? CS * 0.85 : CS * 0.15);
-          const my = curY + CS * 0.66;
-          parts.push({
-            x: mx, y: my,
-            vx: dir * (1 + Math.random() * 2.5) + (Math.random() - 0.5) * 1.5,
-            vy: -(1 + Math.random() * 3.5),
-            w:  2 + Math.random() * 9,
-            h:  1.5 + Math.random() * 4,
-            rot:  Math.random() * 360,
-            drot: (Math.random() - 0.5) * 18,
-            life: 0.75 + Math.random() * 0.5,
-            col:  Math.random() > 0.5 ? '#C4841E' : '#7A3A08',
-          });
-        }
-
-        // Eaten overlay — use live canvas dimensions so it always fills the viewport
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = '#05070a';
-        if (row > 0) ctx.fillRect(0, 0, canvas.width, row * CS);
-        const ry = row * CS;
-        if (dir === 1) {
-          if (x > 0) ctx.fillRect(0, ry, x, CS);
-        } else {
-          const s = x + CS;
-          if (s < canvas.width) ctx.fillRect(s, ry, canvas.width - s, CS);
-        }
-
-        trailPts.push({ x: x + CS / 2, y: curY + CS / 2 });
-        if (trailPts.length > 55) trailPts.shift();
-
-        ctx.shadowColor = '#ff9030';
-        ctx.shadowBlur  = 8;
-        for (let i = 1; i < trailPts.length; i++) {
-          const t  = i / trailPts.length;
-          const p  = trailPts[i];
-          const pp = trailPts[i - 1];
-          ctx.beginPath();
-          ctx.moveTo(pp.x, pp.y);
-          ctx.lineTo(p.x, p.y);
-          ctx.lineWidth   = 0.5 + t * 3.5;
-          ctx.strokeStyle = `rgba(255,${Math.round(60 + t * 160)},20,${(t * 0.55).toFixed(2)})`;
-          ctx.stroke();
-        }
-        ctx.shadowBlur = 0;
-
-        for (let i = parts.length - 1; i >= 0; i--) {
-          const p = parts[i];
-          p.x += p.vx; p.y += p.vy; p.vy += 0.18;
-          p.rot += p.drot; p.life -= 0.038;
-          if (p.life <= 0) { parts.splice(i, 1); continue; }
-          ctx.save();
-          ctx.globalAlpha = p.life * 0.9;
-          ctx.fillStyle   = p.col;
-          ctx.translate(p.x, p.y);
-          ctx.rotate(p.rot * Math.PI / 180);
-          ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-          ctx.restore();
-        }
-
-        traveller.style.left = x + 'px';
-        traveller.style.top  = (row * CS) + 'px';
-
-        rafId = requestAnimationFrame(tick);
-      }
-
-      rafId = requestAnimationFrame(tick);
-    }
-  })();
+    if (typeof lucide !== 'undefined') lucide.createIcons();
   </script>
 
 </body>
