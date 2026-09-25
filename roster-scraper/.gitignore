@@ -1,0 +1,5 @@
+.env
+error_screenshot.png
+error_page.html
+__pycache__/
+*.pyc
