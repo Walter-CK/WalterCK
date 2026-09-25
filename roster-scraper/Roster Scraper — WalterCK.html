@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Roster Scraper — WalterCK</title>
+<meta name="description" content="A Playwright script that logs into McDonald's Australia's myRestaurant portal, pulls your roster, and turns it into a JSON feed you can wire up to iOS Shortcuts.">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#05070a">
+<style>
+  :root {
+    --bg: #05070a;
+    --panel: #0d1117;
+    --border: #1c232c;
+    --text: #e6e6e6;
+    --muted: #8b98a5;
+    --accent: #ffbc0d;
+    --mono: "SF Mono", "Menlo", "Consolas", ui-monospace, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html {
+    scroll-padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.6;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  main {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 48px 24px 96px;
+  }
+
+  a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255, 188, 13, 0.3);
+  }
+  a:hover, a:focus-visible {
+    border-bottom-color: var(--accent);
+  }
+
+  .back {
+    display: inline-block;
+    margin-bottom: 32px;
+    color: var(--muted);
+    border-bottom: none;
+    font-size: 0.9rem;
+  }
+  .back:hover { color: var(--text); }
+
+  h1 {
+    font-size: 1.9rem;
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+  }
+
+  .tagline {
+    color: var(--muted);
+    margin: 0 0 32px;
+    max-width: 54ch;
+  }
+
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    margin-bottom: 40px;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  .meta-row span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: inline-block;
+  }
+
+  h2 {
+    font-size: 1.1rem;
+    margin: 48px 0 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  p { color: #cfd6dc; }
+
+  .diagram {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 18px 20px;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    color: var(--muted);
+    overflow-x: auto;
+    white-space: pre;
+    margin: 20px 0;
+  }
+  .diagram strong { color: var(--text); font-weight: 600; }
+
+  .steps {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    counter-reset: step;
+  }
+
+  .steps > li {
+    counter-increment: step;
+    position: relative;
+    padding: 0 0 28px 40px;
+    border-left: 1px solid var(--border);
+    margin-left: 13px;
+  }
+  .steps > li:last-child { border-left-color: transparent; padding-bottom: 0; }
+
+  .steps > li::before {
+    content: counter(step);
+    position: absolute;
+    left: -13px;
+    top: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .steps h3 {
+    margin: 0 0 6px;
+    font-size: 1rem;
+    color: var(--text);
+  }
+
+  .steps p { margin: 0 0 10px; font-size: 0.95rem; }
+
+  pre {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    color: #d8dee4;
+    margin: 10px 0;
+  }
+  code {
+    font-family: var(--mono);
+    font-size: 0.85em;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 5px;
+  }
+  pre code { background: none; border: none; padding: 0; }
+
+  .callout {
+    background: rgba(255, 188, 13, 0.06);
+    border: 1px solid rgba(255, 188, 13, 0.25);
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-size: 0.9rem;
+    margin: 12px 0;
+  }
+  .callout strong { color: var(--accent); }
+
+  .file-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    margin: 16px 0;
+  }
+  .file-table th, .file-table td {
+    text-align: left;
+    padding: 8px 12px 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .file-table th {
+    color: var(--muted);
+    font-weight: 500;
+    font-size: 0.78rem;
+    text-transform: none;
+  }
+  .file-table code { border: none; background: none; padding: 0; color: var(--accent); }
+
+  footer {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    main { animation: none; }
+  }
+</style>
+</head>
+<body>
+<main>
+
+  <a class="back" href="https://walterck.com/">← walterck.com</a>
+
+  <h1>Roster Scraper</h1>
+  <p class="tagline">Logs into McDonald's Australia's myRestaurant portal, reads your published roster, and turns it into a plain JSON feed — so a phone automation can set your shift alarms without you opening the app.</p>
+
+  <div class="meta-row">
+    <span><span class="dot"></span>Python + Playwright</span>
+    <span><span class="dot"></span>Runs on your own machine</span>
+    <span><span class="dot"></span><a href="https://github.com/Walter-CK/WalterCK/tree/main">Source on GitHub</a></span>
+  </div>
+
+  <h2>Why this exists</h2>
+  <p>myRestaurant doesn't have an API, a calendar export, or a way to get notified when a new roster's published. If you want your shifts anywhere else — a Shortcuts automation, a calendar, an alarm — you're stuck opening the app and reading it yourself, every week.</p>
+  <p>This script does that reading for you: it drives a real browser through the actual login flow (McDonald's uses Microsoft SSO, so there's no simple form-post shortcut here), pulls the roster page's HTML once you're in, and parses out every shift into structured JSON.</p>
+
+  <h2>How it fits together</h2>
+  <div class="diagram">roster-scrape/
+├── scrape_roster.py   <strong>the whole thing — login, scrape, parse, write</strong>
+├── requirements.txt   <strong>playwright, python-dotenv</strong>
+├── .env               <strong>your login, never committed</strong>
+├── .gitignore         <strong>keeps .env and debug files out of git</strong>
+└── roster.json         ← <strong>output, one file, overwritten each run</strong></div>
+
+  <table class="file-table">
+    <tr><th>File</th><th>What it does</th></tr>
+    <tr><td><code>scrape_roster.py</code></td><td>Logs in, opens the roster page, parses shifts, writes <code>roster.json</code></td></tr>
+    <tr><td><code>requirements.txt</code></td><td>Python packages the script needs</td></tr>
+    <tr><td><code>.env</code></td><td>Your myRestaurant username and password — stays on your machine</td></tr>
+    <tr><td><code>roster.json</code></td><td>The output: every upcoming shift, grouped by roster week</td></tr>
+  </table>
+
+  <h2>Setting it up</h2>
+
+  <ol class="steps">
+    <li>
+      <h3>Get the files</h3>
+      <p>Clone or download the repo, then open a terminal in that folder.</p>
+      <pre><code>git clone https://github.com/Walter-CK/WalterCK.git
+cd WalterCK/roster-scraper</code></pre>
+    </li>
+
+    <li>
+      <h3>Install Python</h3>
+      <p>You need Python 3.10 or newer. If <code>python --version</code> in a terminal doesn't show that, grab it from <a href="https://www.python.org/downloads/">python.org</a> — on Windows, tick "Add Python to PATH" during install.</p>
+    </li>
+
+    <li>
+      <h3>Install the dependencies</h3>
+      <pre><code>pip install -r requirements.txt
+playwright install chromium</code></pre>
+      <p>The second command downloads the actual browser Playwright drives — it's a one-time download, separate from any browser you already have installed.</p>
+    </li>
+
+    <li>
+      <h3>Add your login</h3>
+      <p>Open <code>.env</code> in any text editor and fill in your myRestaurant credentials — the same archID and password you use to log in normally.</p>
+      <pre><code>MYJOB_USERNAME=your.username@crew.mcd.com
+MYJOB_PASSWORD=your-password</code></pre>
+      <div class="callout"><strong>This file never leaves your machine.</strong> It's listed in <code>.gitignore</code>, so a normal <code>git push</code> won't include it. Don't paste your real credentials anywhere else — not into an issue, a message, or a screenshot.</div>
+    </li>
+
+    <li>
+      <h3>Run it</h3>
+      <pre><code>python scrape_roster.py</code></pre>
+      <p>First run, open <code>scrape_roster.py</code> and set <code>HEADLESS = False</code> near the top — this pops up a visible browser window so you can watch the login happen and confirm it's working, rather than running invisibly. Once you've seen it succeed once, switch it back to <code>True</code> for normal use.</p>
+      <p>A successful run ends with a line like <code>Wrote 7 shifts across 2 week(s) to roster.json</code>. If it fails partway through, it saves a screenshot and the page's HTML next to the script so you can see exactly what it was looking at when it broke.</p>
+    </li>
+  </ol>
+
+  <h2>What comes out</h2>
+  <p>Every run produces a fresh <code>roster.json</code>, shifts grouped by the roster's own weekly periods:</p>
+  <pre><code>{
+  "last_updated": "2026-09-25T09:25:00+10:00",
+  "weeks": [
+    {
+      "week_start": "21/09/26",
+      "week_end": "27/09/26",
+      "shifts": [
+        {
+          "date": "23/09/26",
+          "start": "1:00 PM",
+          "end": "4:00 PM",
+          "location": "BERRINBA QLD",
+          "hours": "3:00"
+        }
+      ]
+    }
+  ]
+}</code></pre>
+  <p><code>hours</code> is a duration, not a decimal — <code>"3:15"</code> means 3 hours 15 minutes, not 3.15 hours.</p>
+
+  <h2>Getting it onto your phone</h2>
+  <p>The script runs on a computer, but the point is having your shifts on your phone without opening anything. The way I've got it wired up:</p>
+
+  <ol class="steps">
+    <li>
+      <h3>Push to GitHub after each run</h3>
+      <p>The script commits and pushes <code>roster.json</code> automatically if it changed, so the latest roster is always sitting in the repo — no manual upload step.</p>
+    </li>
+    <li>
+      <h3>Run it on a schedule</h3>
+      <p>Windows Task Scheduler (or <code>cron</code> on Mac/Linux) runs the script daily, so a newly published roster shows up without you doing anything.</p>
+    </li>
+    <li>
+      <h3>Pull it into a Shortcut</h3>
+      <p>An iOS Shortcut fetches <code>roster.json</code> straight from GitHub, reads through each week and shift, and sets an alarm ahead of each one. If the repo's private, the Shortcut authenticates with a fine-grained GitHub token scoped to read-only access on just this repo.</p>
+    </li>
+  </ol>
+
+  <div class="callout"><strong>Heads up if you're adapting this yourself:</strong> myRestaurant's login flow is McDonald's own enterprise Microsoft SSO setup, not a simple username/password form — expect to spend time in the script's selectors if your restaurant's portal renders slightly differently, or if Microsoft/McDonald's change the page layout later. The script logs each step as it goes, which makes it easier to see exactly where a run stalls.</div>
+
+  <footer>
+    Built by <a href="https://walterck.com/">Walter MacLean</a>. Source and issues on <a href="https://github.com/Walter-CK/WalterCK/tree/main">GitHub</a>.
+  </footer>
+
+</main>
+</body>
+</html>
