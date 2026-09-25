@@ -175,7 +175,7 @@
         <a class="fp-btn-primary" href="https://github.com/Walter-CK/WalterCK/tree/main/roster-scraper" target="_blank" rel="noopener noreferrer">
           <i data-lucide="github" size="18"></i> Source on GitHub
         </a>
-        <a class="fp-btn-secondary" href="https://www.icloud.com/shortcuts/10b9349abae74dbb9f3cdc419539b8f0" target="_blank" rel="noopener noreferrer">
+        <a class="fp-btn-secondary" href="https://www.icloud.com/shortcuts/REPLACE-WITH-YOUR-SHARE-LINK" target="_blank" rel="noopener noreferrer">
           <i data-lucide="download" size="18"></i> Bonus Shortcut
         </a>
       </div>
@@ -285,9 +285,9 @@ MYJOB_PASSWORD=your-password</code></pre>
           <p>The script commits and pushes <code>roster.json</code> automatically if it changed, so the latest roster is always sitting in the repo with no manual upload step.</p>
         </div>
         <div class="fp-feat">
-          <div class="fp-feat-icon"><i data-lucide="clock" size="26"></i></div>
-          <h3>Run it on a schedule</h3>
-          <p>Windows Task Scheduler (or <code>cron</code> on Mac/Linux) runs the script daily, so a newly published roster shows up without you doing anything.</p>
+          <div class="fp-feat-icon"><i data-lucide="cloud-lightning" size="26"></i></div>
+          <h3>Run it via GitHub Actions</h3>
+          <p>A GitHub Actions workflow runs the script daily in the cloud, ensuring a newly published roster shows up automatically without requiring a local machine to remain powered on.</p>
         </div>
         <div class="fp-feat">
           <div class="fp-feat-icon"><i data-lucide="smartphone" size="26"></i></div>
@@ -295,6 +295,31 @@ MYJOB_PASSWORD=your-password</code></pre>
           <p>An iOS Shortcut fetches <code>roster.json</code> straight from GitHub, reads through each week and shift, and sets an alarm ahead of each one. Private repo? The Shortcut authenticates with a fine-grained token scoped to read-only access on just this repo.</p>
         </div>
       </div>
+    </section>
+
+    <section id="githubactions" class="fp-section">
+      <div class="fp-divider"></div>
+      <h2>GitHub Actions Setup</h2>
+      <p>GitHub Actions automates the scraping process entirely in the background.</p>
+
+      <ol class="fp-steps">
+        <li>
+          <h3>Repo Secrets</h3>
+          <p>Store your myRestaurant credentials as GitHub Repository Secrets (<code>MYJOB_USERNAME</code> and <code>MYJOB_PASSWORD</code>). The workflow securely injects these during execution.</p>
+        </li>
+        <li>
+          <h3>The Workflow File</h3>
+          <p>The <code>scrape (1).yml</code> file defines the environment. It installs Python, sets up the Playwright browser, executes the script, and commits the updated <code>roster.json</code> back to the repository.</p>
+        </li>
+        <li>
+          <h3>The Schedule</h3>
+          <p>The workflow utilizes cron to run automatically every day at 6:00 AM AEST (<code>0 20 * * *</code>). It also supports <code>repository_dispatch</code>, allowing the iOS Shortcut to trigger a fresh scrape on demand.</p>
+        </li>
+        <li>
+          <h3>Token Setup</h3>
+          <p>To allow the iOS Shortcut to read the private repository and trigger dispatches, generate a GitHub Personal Access Token (PAT). Scope this token strictly to read/write access for this specific repository and provide it to the Shortcut during setup.</p>
+        </li>
+      </ol>
     </section>
 
     <section class="fp-section">
