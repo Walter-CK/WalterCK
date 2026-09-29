@@ -74,7 +74,7 @@
     /* The traveller wrapper — contains two children that swap */
     #cookie-traveller {
       position: fixed;
-      z-index: 1001;
+      z-index: 10002;
       pointer-events: none;
       width: 82px;
       height: 82px;
@@ -91,7 +91,7 @@
     #cookie-canvas {
       position: fixed;
       inset: 0;
-      z-index: 1000;
+      z-index: 10001;
       pointer-events: none;
       display: none;
     }
@@ -101,7 +101,7 @@
       position: fixed;
       inset: 0;
       background: #05070a;
-      z-index: 2000;
+      z-index: 10003;
       flex-direction: column;
       align-items: center;
       justify-content: center;
@@ -273,15 +273,16 @@
           <a class="card-link" href="toolkit/">
             <article class="card card--feature">
               <h3>Apple Toolkit</h3>
-              <p>Shortcuts and Scriptable scripts I actually use: a cookie clicker, the Arise alarm system, RoutineOS, a reaction timer and a pile more. Copy them straight onto your device.</p>
+              <p>Shortcuts and Scriptable scripts I actually use, from a cookie clicker to the Arise alarm system.</p>
+              <p class="toolkit-count" id="toolkit-count" hidden><span class="count-num" id="count-shortcuts">0</span> shortcuts and <span class="count-num" id="count-scripts">0</span> scripts and counting. Download them to your device now.</p>
               <ul class="tag-row"><li>Scriptable</li><li>Shortcuts</li><li>JavaScript</li></ul>
             </article>
           </a>
-          <a class="card-link" href="roster-scraper/">
+          <a class="card-link" href="scraper/">
             <article class="card card--feature">
-              <h3>Roster Scraper</h3>
-              <p>Pulls my McDonald's myRestaurant roster on a schedule and serves it as a JSON feed, so Shortcuts can put shifts on my calendar without me touching anything.</p>
-              <ul class="tag-row"><li>Python</li><li>GitHub Actions</li><li>Shortcuts</li></ul>
+              <h3>Scraper</h3>
+              <p>Turns websites with no API into JSON your Shortcuts and Scriptable scripts can read, using an invisible browser. Comes with a working demo and my McDonald's roster scraper as the real-world example.</p>
+              <ul class="tag-row"><li>Python</li><li>Playwright</li><li>Shortcuts</li></ul>
             </article>
           </a>
           <a class="card-link" href="eureka-rich/">
@@ -602,8 +603,6 @@
       traveller.style.transition = 'none';
 
       canvas.style.display = 'block';
-      const newBanner = document.getElementById('new-banner');
-      if (newBanner) newBanner.style.display = 'none';
 
       // State that persists across resize restarts
       let x = -CS, row = 0, dir = 1, lastTs = null;
