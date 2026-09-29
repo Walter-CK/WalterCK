@@ -1668,3 +1668,57 @@ body.cursor-ready #cursor-glow {
     transition: none;
   }
 }
+
+
+/* ─── Home additions: sections, tags, toggle, footer ─── */
+.page-section { scroll-margin-top: 76px; }
+
+.grid--featured { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.card--feature { padding: 32px 28px; display: flex; flex-direction: column; }
+.card--feature h3 { font-size: 1.45rem; }
+.card--feature p { font-size: 0.98rem; flex: 1; }
+
+.tag-row {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  list-style: none; margin: 16px 0 0; padding: 0;
+}
+.tag-row li {
+  font-size: 0.72rem; font-weight: 700; color: var(--muted);
+  padding: 3px 10px; border-radius: 99px;
+  border: 1px solid var(--card-border); background: var(--glass);
+}
+
+.more-row { display: flex; justify-content: center; margin-top: 28px; }
+.more-toggle {
+  padding: 10px 22px; border-radius: 999px; cursor: pointer;
+  font-size: 0.86rem; font-weight: 700; color: var(--text);
+  background: rgba(107, 140, 255, 0.08);
+  border: 1px solid rgba(107, 140, 255, 0.3);
+  transition: background 0.24s, border-color 0.24s, transform 0.24s;
+}
+.more-toggle:hover { background: rgba(107, 140, 255, 0.16); border-color: var(--accent); transform: translateY(-2px); }
+.more-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+.grid--more { margin-top: 24px; }
+.grid--more[hidden] { display: none; }
+
+.stack-grid {
+  display: grid; gap: 28px; margin-top: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+.stack-group h3 { margin: 0; color: var(--accent); font-size: 1.05rem; }
+.stack-group .meta { margin: 14px 0 0; }
+
+.site-footer { padding: 36px 0 56px; border-top: 1px solid var(--card-border); }
+.footer-inner {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 12px 24px; flex-wrap: wrap;
+}
+.footer-inner p { margin: 0; color: var(--muted); font-size: 0.9rem; }
+.footer-inner a { color: var(--accent); text-decoration: underline; text-underline-offset: 4px; font-weight: 600; }
+
+@media (max-width: 700px) {
+  .grid--featured { grid-template-columns: 1fr; }
+  .card--feature { padding: 24px 20px; }
+  .site-nav .nav-links { width: min(100%, 330px); }
+}
