@@ -1722,3 +1722,20 @@ body.cursor-ready #cursor-glow {
   .card--feature { padding: 24px 20px; }
   .site-nav .nav-links { width: min(100%, 330px); }
 }
+
+/* NEW ticket: stay clear of the fixed nav */
+#new-banner { top: max(10vh, 104px); }
+@media (max-width: 700px) { #new-banner { top: max(10vh, 88px); } }
+
+/* Toolkit card: glowing live counter */
+.card .toolkit-count { margin-top: 14px; color: var(--text); font-weight: 600; font-size: 0.95rem; }
+.count-num {
+  color: #fff; font-weight: 800; font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 8px rgba(107,140,255,.95), 0 0 22px rgba(107,140,255,.7), 0 0 44px rgba(91,230,192,.35);
+  animation: count-glow 2.6s ease-in-out infinite;
+}
+@keyframes count-glow {
+  0%, 100% { text-shadow: 0 0 6px rgba(107,140,255,.7), 0 0 16px rgba(107,140,255,.45), 0 0 30px rgba(91,230,192,.2); }
+  50%      { text-shadow: 0 0 10px rgba(107,140,255,1), 0 0 28px rgba(107,140,255,.85), 0 0 56px rgba(91,230,192,.5); }
+}
+@media (prefers-reduced-motion: reduce) { .count-num { animation: none; } }
