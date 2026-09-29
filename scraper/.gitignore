@@ -1,4 +1,5 @@
 .env
+output/*_error.*
 error_screenshot.png
 error_page.html
 __pycache__/

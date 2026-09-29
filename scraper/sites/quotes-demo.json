@@ -1,0 +1,21 @@
+{
+  "url": "https://quotes.toscrape.com/",
+  "wait_for": ".quote",
+  "login": {
+    "url": "https://quotes.toscrape.com/login",
+    "username_selector": "#username",
+    "password_selector": "#password",
+    "submit_selector": "input[type=submit]",
+    "username_env": "QUOTES_USERNAME",
+    "password_env": "QUOTES_PASSWORD",
+    "wait_for": ".quote"
+  },
+  "extract": {
+    "rows": "div.quote",
+    "fields": {
+      "text": "span.text",
+      "author": "small.author",
+      "author_link": "span a@href"
+    }
+  }
+}
