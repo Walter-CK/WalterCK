@@ -877,3 +877,17 @@ if (hamburger && nav) {
     container.appendChild(p);
   }
 })();
+
+// ── Projects: show all / show fewer ───────────────────────────────────────
+(function () {
+  const btn = document.getElementById('more-toggle');
+  const box = document.getElementById('more-projects');
+  if (!btn || !box) return;
+  btn.addEventListener('click', () => {
+    const opening = box.hidden;
+    box.hidden = !opening;
+    btn.setAttribute('aria-expanded', String(opening));
+    btn.textContent = opening ? 'Show fewer' : 'Show all projects';
+    if (opening) box.querySelectorAll('.card').forEach(el => el.classList.add('is-visible'));
+  });
+})();
