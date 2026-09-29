@@ -891,3 +891,40 @@ if (hamburger && nav) {
     if (opening) box.querySelectorAll('.card').forEach(el => el.classList.add('is-visible'));
   });
 })();
+
+// ── Toolkit card: live shortcut / script counts from toolkit.json ─────────
+(function () {
+  const wrap = document.getElementById('toolkit-count');
+  if (!wrap) return;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function countUp(el, target) {
+    const start = performance.now(), dur = 1200;
+    (function step(now) {
+      const t = Math.min((now - start) / dur, 1);
+      el.textContent = Math.round(target * (1 - Math.pow(1 - t, 3)));
+      if (t < 1) requestAnimationFrame(step);
+    })(start);
+  }
+
+  fetch('toolkit/toolkit.json', { cache: 'no-store' })
+    .then(r => r.json())
+    .then(raw => {
+      const items = raw.filter(it => it && it.title);
+      const scripts = items.filter(it => String(it.tags || '').toLowerCase() === 'scriptable').length;
+      const shortcuts = items.length - scripts;
+      const targets = [['count-shortcuts', shortcuts], ['count-scripts', scripts]];
+      wrap.hidden = false;
+      if (reduce || !('IntersectionObserver' in window)) {
+        targets.forEach(([id, n]) => { document.getElementById(id).textContent = n; });
+        return;
+      }
+      const io = new IntersectionObserver(entries => {
+        if (!entries.some(e => e.isIntersecting)) return;
+        io.disconnect();
+        targets.forEach(([id, n]) => countUp(document.getElementById(id), n));
+      }, { threshold: 0.4 });
+      io.observe(wrap);
+    })
+    .catch(() => {});
+})();
