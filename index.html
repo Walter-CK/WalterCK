@@ -8,14 +8,18 @@
   <meta name="description" content="Projects, shortcuts, scripts and experiments. Automation, tools and tech projects designed by Walter MacLean.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://walterck.com">
-  <link href="https://fonts.googleapis.com/css2?family=Oxanium" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="preload" as="image" href="images/walterck.png">
 
   <meta property="og:title" content="WalterCK">
   <meta property="og:description" content="Projects, shortcuts, products and experiments.">
-  <meta property="og:image" content="https://walterck.com/images/walterck.png">
+  <meta property="og:image" content="https://walterck.com/images/og.png">
   <meta property="og:url" content="https://walterck.com">
   <meta property="og:type" content="website">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://walterck.com/images/og.png">
 
   <script>
     if (history.scrollRestoration) history.scrollRestoration = 'manual';
@@ -173,11 +177,25 @@
 </head>
 <body>
 
+  <div id="scroll-progress" class="scroll-progress" aria-hidden="true"></div>
+  <header id="site-nav" class="site-nav">
+    <div class="container nav-inner">
+      <a class="nav-logo" href="#top"><span></span>WALTERCK</a>
+      <nav class="nav-links" aria-label="Main">
+        <a href="#about">About</a>
+        <a href="#projects">Projects</a>
+        <a href="#stack">Stack</a>
+        <a href="toolkit/">Toolkit</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
   <canvas id="ambient-canvas" aria-hidden="true"></canvas>
   <div id="cursor-glow" aria-hidden="true"></div>
 
   <main>
-    <section class="hero-main">
+    <section class="hero-main" id="top">
       <div class="container hero-inner">
 
         <div class="pfp-cookie-wrap" id="pfp-cookie-wrap">
@@ -233,6 +251,16 @@
 
     <section id="about" class="page-section">
       <div class="container">
+        <!--
+          ABOUT — IDEAS (delete this comment when you rewrite):
+          • Open with what you actually do: automate stuff on iPhone/iPad (Shortcuts, Scriptable, Jellycuts) and build things nobody asked for.
+          • The cookie thing: why the brand is cookies, and the easter egg on the pfp (tell people to click it).
+          • One real "I built X because Y annoyed me" story: Roster Scraper (rosters -> JSON -> Shortcuts) is a great one.
+          • Annie the cat: one line, gives it personality.
+          • Where you're at: Year 9, Brisbane, building a repair brand + working jobs. Keeps it real, not corporate.
+          • End with an invite: what you want people to do (poke around the Toolkit, message you, steal a script).
+          • Dry humour > buzzwords. If a sentence could be on anyone's site, cut it.
+        -->
         <h2>About</h2>
         <p>This website's every shareable project/hobby I have, like a portfolio but cooler.<br><br>I've got a lot of ideas, so come check back every few months, something cool will be added.<br><br><strong>Thanks for visiting :)</strong></p>
       </div>
@@ -241,59 +269,92 @@
     <section id="projects" class="page-section">
       <div class="container">
         <h2>Projects</h2>
-        <div class="grid">
+        <div class="grid grid--featured">
           <a class="card-link" href="toolkit/">
-            <article class="card">
+            <article class="card card--feature">
               <h3>Apple Toolkit</h3>
-              <p>Shortcuts &amp; Scripts (Scriptable)</p>
+              <p>Shortcuts and Scriptable scripts I actually use: a cookie clicker, the Arise alarm system, RoutineOS, a reaction timer and a pile more. Copy them straight onto your device.</p>
+              <ul class="tag-row"><li>Scriptable</li><li>Shortcuts</li><li>JavaScript</li></ul>
+            </article>
+          </a>
+          <a class="card-link" href="roster-scraper/">
+            <article class="card card--feature">
+              <h3>Roster Scraper</h3>
+              <p>Pulls my McDonald's myRestaurant roster on a schedule and serves it as a JSON feed, so Shortcuts can put shifts on my calendar without me touching anything.</p>
+              <ul class="tag-row"><li>Python</li><li>GitHub Actions</li><li>Shortcuts</li></ul>
+            </article>
+          </a>
+          <a class="card-link" href="eureka-rich/">
+            <article class="card card--feature">
+              <h3>Eureka Rich</h3>
+              <p>A Eureka Stockade themed game I built for a history assessment. Custom audio, events, and way more effort than the assessment needed.</p>
+              <ul class="tag-row"><li>HTML</li><li>CSS</li><li>JavaScript</li></ul>
+            </article>
+          </a>
+          <a class="card-link" href="https://maniaprint.online" target="_blank" rel="noopener noreferrer">
+            <article class="card card--feature">
+              <h3>Mania Print</h3>
+              <p>My 3D printing business. Real site, real customers.</p>
+              <ul class="tag-row"><li>Business</li><li>Web</li></ul>
+            </article>
+          </a>
+        </div>
+
+        <div class="more-row">
+          <button type="button" id="more-toggle" class="more-toggle" aria-expanded="false" aria-controls="more-projects">Show all projects</button>
+        </div>
+
+        <div class="grid grid--more" id="more-projects" hidden>
+          <article class="card" onclick="location.href='desktop/'" style="cursor:pointer;">
+            <h3>HTML Desktop Background</h3>
+            <p>A live desktop wallpaper, running through <a href="https://apps.microsoft.com/detail/9ntm2qc6qws7" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">Lively Wallpaper</a>.</p>
+            <ul class="tag-row"><li>HTML</li><li>CSS</li><li>JavaScript</li></ul>
+          </article>
+          <a class="card-link" href="games/">
+            <article class="card">
+              <h3>Games</h3>
+              <p>Browser games hosted right here on the site.</p>
+              <ul class="tag-row"><li>HTML5</li></ul>
             </article>
           </a>
           <a class="card-link" href="https://github.com/Walter-CK" target="_blank" rel="noopener noreferrer">
             <article class="card">
-              <h3>Portfolio</h3>
-              <p>What you're looking at!</p>
-            </article>
-          </a>
-          <a class="card-link" href="https://maniaprint.online" target="_blank" rel="noopener noreferrer">
-            <article class="card">
-              <h3>Mania Print</h3>
-              <p>3D Printing Business</p>
+              <h3>This Website</h3>
+              <p>Hand-written, no framework, hosted on GitHub Pages. Source is public.</p>
+              <ul class="tag-row"><li>HTML</li><li>CSS</li><li>JavaScript</li></ul>
             </article>
           </a>
           <a class="card-link" href="https://billy-bit.com" target="_blank" rel="noopener noreferrer">
             <article class="card">
               <h3>Billy Bit</h3>
-              <p>My friend's website</p>
-            </article>
-          </a>
-          <a class="card-link" href="eureka-rich/">
-            <article class="card">
-              <h3>Eureka Rich</h3>
-              <p>Fun History Assessment Game</p>
-            </article>
-          </a>
-          <article class="card" onclick="location.href='desktop/'" style="cursor:pointer;">
-            <h3>HTML Desktop Background</h3>
-            <p>Enabled through <a href="https://apps.microsoft.com/detail/9ntm2qc6qws7" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">Lively Wallpaper</a></p>
-          </article>
-          <a class="card-link" href="roster-scraper/">
-            <article class="card">
-              <h3>Roster Scraper</h3>
-              <p>McDonald's myRestaurant to JSON feed for Shortcuts</p>
+              <p>A friend's experimental, space-themed portfolio. Worth a look.</p>
+              <ul class="tag-row"><li>Friend's site</li></ul>
             </article>
           </a>
           <article class="card card--locked">
             <h3>The ADO</h3>
-            <p>Coming Soon</p>
+            <p>Coming soon.</p>
           </article>
-          <article class="card card--locked">
-            <h3>$</h3>
-            <p>Coming Soon</p>
-          </article>
-          <article class="card card--locked">
-            <h3>🎛️</h3>
-            <p>Coming</p>
-          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="stack" class="page-section">
+      <div class="container">
+        <h2>Stack</h2>
+        <div class="stack-grid">
+          <div class="stack-group">
+            <h3>Web &amp; code</h3>
+            <ul class="meta"><li>HTML</li><li>CSS</li><li>JavaScript</li><li>Python</li></ul>
+          </div>
+          <div class="stack-group">
+            <h3>Apple automation</h3>
+            <ul class="meta"><li>Shortcuts</li><li>Scriptable</li><li>Jellycuts</li></ul>
+          </div>
+          <div class="stack-group">
+            <h3>Ships with</h3>
+            <ul class="meta"><li>GitHub Pages</li><li>GitHub Actions</li><li>Smart home (Tuya)</li></ul>
+          </div>
         </div>
       </div>
     </section>
@@ -306,6 +367,12 @@
         <p>Discord: <a href="https://discord.com/users/952110713697108028">WalterNCookie</a></p>
       </div>
     </section>
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <p>Hand-built by Walter. No frameworks, no templates.</p>
+        <p><a href="https://github.com/Walter-CK/WalterCK" target="_blank" rel="noopener noreferrer">View the source on GitHub &rarr;</a></p>
+      </div>
+    </footer>
   </main>
 
   <!-- ── Cookie Easter Egg Elements ── -->
