@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Roster Scraper | WalterCK</title>
-  <meta name="description" content="A Playwright script that logs into McDonald's Australia's myRestaurant portal, pulls your roster, and turns it into a JSON feed you can wire up to iOS Shortcuts.">
+  <title>Scraper | WalterCK</title>
+  <meta name="description" content="A Playwright script that drives an invisible browser to log into websites with no API and turn their pages into JSON for iOS Shortcuts and Scriptable.">
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#05070a">
 
@@ -154,7 +154,7 @@
 </head>
 <body class="featured-page">
 
-  <a href="../" class="fp-back-btn" aria-label="Back to toolkit">
+  <a href="../" class="fp-back-btn" aria-label="Back home">
     <i data-lucide="arrow-left" size="18"></i>
   </a>
 
@@ -163,20 +163,20 @@
       <div class="fp-hero-icon-wrap">
         <div class="fp-hero-ring"></div>
         <div class="fp-hero-icon">
-          <i data-lucide="calendar-clock"></i>
+          <i data-lucide="bot"></i>
         </div>
       </div>
 
-      <h1>Roster Scraper</h1>
+      <h1>Scraper</h1>
 
-      <p class="fp-hero-subtitle">Logs into McDonald's Australia's myRestaurant portal, reads your published roster, and turns it into a plain JSON feed so a phone automation & script can set your shift alarms, update a widget and show your shifts from your home screen.</p>
+      <p class="fp-hero-subtitle">Turns websites that have no API into JSON your Shortcuts and Scriptable scripts can read. One generic Playwright script for the easy sites, custom code for the awkward ones.</p>
 
       <div class="fp-cta-row">
-        <a class="fp-btn-primary" href="https://github.com/Walter-CK/WalterCK/tree/main/roster-scraper" target="_blank" rel="noopener noreferrer">
+        <a class="fp-btn-primary" href="https://github.com/Walter-CK/WalterCK/tree/main/scraper" target="_blank" rel="noopener noreferrer">
           <i data-lucide="github" size="18"></i> Source on GitHub
         </a>
         <a class="fp-btn-secondary" href="https://www.icloud.com/shortcuts/10b9349abae74dbb9f3cdc419539b8f0" target="_blank" rel="noopener noreferrer">
-          <i data-lucide="download" size="18"></i> Bonus Shortcut
+          <i data-lucide="download" size="18"></i> Roster Shortcut
         </a>
       </div>
     </section>
@@ -184,19 +184,30 @@
     <section class="fp-section">
       <div class="fp-divider"></div>
       <h2>Why this exists</h2>
-      <p>Many niche or specific sites don't have an API, even though you wish they would serve their information easier. I've always wanted to integrate these sites into real, usable programs like Shortcuts and Scriptable.</p>
-      <p>This setup does that, or attempts to depending on the site. Using Playright, a python library, the open source Chrome engine, Chrominium, can operate an invisible browser that interacts with any page, just like a user, but autonomously. We are basically now the robots that CAPTCHA tests are trying to catch.</p>
+      <p>Many niche sites don't have an API, even though you wish they'd serve their information more easily. I've always wanted to plug these sites into real, usable programs like Shortcuts and Scriptable.</p>
+      <p>This setup does that, or tries to, depending on the site. It uses Playwright, a Python library that runs Chromium (the open-source engine behind Chrome) as an invisible browser. It clicks, types and logs in just like a person would, only automatically. We are basically the robots that CAPTCHA tests are trying to catch.</p>
+    </section>
+
+    <section class="fp-section">
+      <div class="fp-divider"></div>
+      <h2>Two ways to use it</h2>
+      <p><strong>A config file</strong> covers most simple sites. You describe the page in a small JSON file (where to go, how to log in, which bits to grab) and <code>scraper.py</code> does the rest. No code to write.</p>
+      <p><strong>A custom script</strong> is for sites a config can't handle. McDonald's myRestaurant logs in through Microsoft SSO and buries shifts in messy HTML, so it has its own script, <code>scrape_roster.py</code>. That one is the real-world example further down this page.</p>
     </section>
 
     <section class="fp-section">
       <div class="fp-divider"></div>
       <h2>Files</h2>
-      <div class="fp-diagram">roster-scrape/
-├── scraper.py         <strong>the script that logins, scrapes, parses, and writes to the website.</strong>
-├── requirements.txt   <strong>playwright, python-library, runs browser</strong>
-├── .env               <strong>your login, never committed</strong>
-├── .gitignore         <strong>keeps .env and debug files out of git</strong>
-└── output.json       ← <strong>output, one file, overwritten each run</strong></div>
+      <div class="fp-diagram">scraper/
+├── scraper.py          <strong>the generic script: opens a browser, logs in, reads the page, writes JSON</strong>
+├── sites/              <strong>one small JSON config per site</strong>
+│   └── quotes-demo.json   <strong>a working example you can run as-is</strong>
+├── scrape_roster.py    <strong>custom script for the McDonald's roster (Microsoft SSO needs real code)</strong>
+├── requirements.txt    <strong>playwright, beautifulsoup4, python-dotenv</strong>
+├── .env.example        <strong>template for your logins</strong>
+├── .env                <strong>your real logins, never committed</strong>
+├── .gitignore          <strong>keeps .env and debug files out of git</strong>
+└── output/             <strong>one JSON file per site, overwritten each run</strong></div>
     </section>
 
     <section class="fp-section">
@@ -208,36 +219,58 @@
           <h3>Download the code</h3>
           <p>Clone or download the repo, then open a terminal (like Command Prompt) in the folder by pasting the commands below.</p>
           <pre><code>git clone https://github.com/Walter-CK/WalterCK.git
-cd WalterCK/roster-scraper</code></pre>
+cd WalterCK/scraper</code></pre>
         </li>
 
         <li>
           <h3>Install Python</h3>
-          <p>You need Python 3.10 or newer. If running the command <code>python --version</code> in a terminal doesn't show that, download it from <a href="https://www.python.org/downloads/" target="_blank" rel="noopener noreferrer">python.org</a> on Windows, tick "Add Python to PATH" during install, you need this for alot of other tasks anyway.</p>
+          <p>You need Python 3.10 or newer. If running <code>python --version</code> in a terminal doesn't show that, download it from <a href="https://www.python.org/downloads/" target="_blank" rel="noopener noreferrer">python.org</a>. On Windows, tick "Add Python to PATH" during install. You'll need it for a lot of other stuff anyway.</p>
         </li>
 
         <li>
           <h3>Install the dependencies</h3>
           <pre><code>pip install -r requirements.txt
 playwright install chromium</code></pre>
-          <p>The second command downloads the Chromimun browser that Playright run it's robot on.</p>
+          <p>The second command downloads the Chromium browser that Playwright runs its robot on.</p>
         </li>
 
         <li>
           <h3>Add your login</h3>
-          <p>Open <code>.env</code> in any text editor and fill in your login credentials, if any.</p>
-          <pre><code>USERNAME=your.username@if-username-is-an-email.com
-PASSWORD=your-password</code></pre>
-          <div class="fp-callout"><strong>This file never leaves your machine.</strong> It's listed in <code>.gitignore</code>, so a normal <code>git push</code> won't include it. Don't paste your real credentials anywhere else for security ofc.</div>
+          <p>Copy <code>.env.example</code> to a new file called <code>.env</code> and fill in whatever the site needs. Some sites have no login at all. The demo accepts any values:</p>
+          <pre><code>QUOTES_USERNAME=any-name-works
+QUOTES_PASSWORD=any-password-works</code></pre>
+          <div class="fp-callout"><strong>This file never leaves your machine.</strong> It's listed in <code>.gitignore</code>, so a normal <code>git push</code> won't include it. Don't paste your real credentials anywhere else, for security ofc. Only automate logins you're allowed to: some sites ban bots in their terms and can lock your account.</div>
         </li>
 
         <li>
           <h3>Run it</h3>
-          <pre><code>py scrape_roster.py</code></pre>
-          <p>First run, open <code>scraper.py</code> and set <code>HEADLESS = False</code> near the top. This pops up a visible browser window so you can watch the login happen and confirm it's working, rather than running invisibly. Once you've seen it succeed once, switch it back to <code>True</code> for normal use.</p>
-          <p>A successful run ends with a line like <code>Wrote 7 shifts across 2 week(s) to output.json</code>. If it fails partway through, it saves a screenshot and the page's HTML next to the script so you can see exactly what it was looking at when it broke.</p>
+          <pre><code>python scraper.py sites/quotes-demo.json --show</code></pre>
+          <p>The <code>--show</code> flag pops up a visible browser window so you can watch the login happen and confirm it works. Once you've seen it succeed, drop the flag and it runs invisibly.</p>
+          <p>A successful run ends with a line like <code>Wrote 10 items to output/quotes-demo.json</code>. If it fails partway through, it saves a screenshot and the page's HTML into <code>output/</code> so you can see exactly what it was looking at when it broke.</p>
+        </li>
+
+        <li>
+          <h3>Point it at your own site</h3>
+          <p>Copy <code>sites/quotes-demo.json</code>, change the URLs, and swap in your own selectors (right-click a page, Inspect, and copy the CSS selector). The keys:</p>
+          <table class="fp-table">
+            <thead><tr><th>Key</th><th>What it does</th></tr></thead>
+            <tbody>
+              <tr><td><code>url</code></td><td>The page to read once you're logged in.</td></tr>
+              <tr><td><code>wait_for</code></td><td>A selector that only exists once the page has loaded its data.</td></tr>
+              <tr><td><code>login</code></td><td>Optional. Login page URL, the username, password and submit selectors, and the <code>.env</code> names holding your credentials. Add <code>next_selector</code> for sites that ask for the username first.</td></tr>
+              <tr><td><code>extract.rows</code></td><td>The selector for one repeating item (a quote, a notice, a shift).</td></tr>
+              <tr><td><code>extract.fields</code></td><td>What to pull out of each row. <code>"span.text"</code> gives the text, <code>"a@href"</code> gives an attribute.</td></tr>
+            </tbody>
+          </table>
         </li>
       </ol>
+    </section>
+
+    <section class="fp-section">
+      <div class="fp-divider"></div>
+      <h2>Real-world example: McDonald's roster</h2>
+      <p>This is the one I built the whole thing for. myRestaurant has no API, no calendar export and no notification when a new roster drops, so <code>scrape_roster.py</code> logs in through Microsoft SSO, reads the roster page and turns every shift into JSON. The rest of this page walks through that setup.</p>
+      <!-- TODO Walter: add a second example here for the school notices scraper (what it reads, what reads the JSON). -->
     </section>
 
     <section class="fp-section">
